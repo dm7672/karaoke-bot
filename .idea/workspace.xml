@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="8a1826b0-dad6-4a13-b326-e19a83e42610" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -10,23 +13,39 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="34Qg6I4mmZVE30oOVHOmNCz9GSl" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/java_git/karaoke_bot_clean"
+    "last_opened_file_path": "D:/java_git/karaoke_bot_clean/src/model/domain",
+    "settings.editor.selected.configurable": "terminal"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\java_git\karaoke_bot_clean\src\model\domain" />
+      <recent name="D:\java_git\karaoke_bot_clean\src\model\domain\entities" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\java_git\karaoke_bot_clean\src\model\domain\parcer" />
+      <recent name="D:\java_git\karaoke_bot_clean" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
