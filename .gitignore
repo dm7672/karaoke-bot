@@ -19,6 +19,50 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# === IDE files ===
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# === Build tools ===
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+
+# Kotlin/Java compiler caches
+*.kotlin_module
+
+# === OS-specific ===
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
