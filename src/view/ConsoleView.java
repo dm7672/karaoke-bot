@@ -1,26 +1,39 @@
 package view;
 
-
-import viewmodel.*;
-
+import viewmodel.ViewModel;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ConsoleView implements View {
     private ViewModel viewModel;
-    private final Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner;
+
+    public ConsoleView() {
+        this.scanner = new Scanner(System.in);
+    }
+
+    public ConsoleView(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     @Override
-    public void setViewModel(ViewModel viewModel) {
-        this.viewModel = viewModel;
+    public void setViewModel(ViewModel vm) {
+        this.viewModel = vm;
     }
 
     @Override
     public void start() {
         System.out.println("Введите: <userId> <сообщение> (или \"exit\").");
         while (true) {
-            String line = scanner.nextLine().trim();
+            String line;
+            try {
+                line = scanner.nextLine().trim();
+            } catch (NoSuchElementException e) {
+                break;
+            }
+
             if (line.equalsIgnoreCase("exit")) {
                 System.out.println("Завершено.");
                 break;
@@ -37,10 +50,8 @@ public class ConsoleView implements View {
                 Integer userId = Integer.valueOf(parts[0]);
                 String message = parts[1];
 
-                // Передаём всё во ViewModel и получаем список ответов
                 List<String> responses = viewModel.processMessage(userId, message);
 
-                // Выводим каждый ответ
                 for (String resp : responses) {
                     System.out.println(resp);
                 }
