@@ -20,9 +20,10 @@ public class ViewModel {
         this.handlers = List.of(
                 new NewUserHandler(userRepo, platform),      // 1. регистрация нового юзера
                 new HelpHandler(),                           // 2. /help
-                new ListVideosHandler(videoRepo),            // 3. /listVideos
+                new VideosHandler(videoRepo),                // 3. /Videos
+                new MyVideosHandler(videoRepo),
                 new AddVideoHandler(videoRepo, urlParser),   // 4. добавление видео
-                new UnknownCommandHandler()                  // 5. всё остальное — неизвестная команда
+                new UnknownCommandHandler()                 // 5. всё остальное — неизвестная команда
         );
     }
 
