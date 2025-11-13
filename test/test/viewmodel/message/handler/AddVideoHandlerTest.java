@@ -16,22 +16,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AddVideoHandlerTest {
-    private static final User TEST_USER = new User(1, "testPlatform");
-    private static final String  GOOD_URL  = "https://www.youtube.com/watch?v=UQyei4cdGFY";
-    private static final String  BAD_URL   = "bad";
+    private static final User TEST_USER = new User(1L, "testPlatform");
+    private static final String GOOD_URL = "https://www.youtube.com/watch?v=UQyei4cdGFY";
+    private static final String BAD_URL = "bad";
 
-    private IRepository<User, Integer>   userRepo;
+    private IRepository<User, Long> userRepo;
     private IRepository<Video, String> videoRepo;
-    private IUrlParser                urlParser;
-    private AddVideoHandler           handler;
+    private IUrlParser urlParser;
+    private AddVideoHandler handler;
 
     @BeforeEach
     void setUp() {
         videoRepo = new InMemoryRepository<>(Video::getUrl);
-        userRepo  = new InMemoryRepository<>(User::getUserId);
+        userRepo = new InMemoryRepository<>(User::getUserId);
         userRepo.save(TEST_USER);
-        urlParser  = new YouTubeUrlParser();
-        handler    = new AddVideoHandler(videoRepo, urlParser);
+        urlParser = new YouTubeUrlParser();
+        handler = new AddVideoHandler(videoRepo, urlParser);
     }
 
     @Test
@@ -49,11 +49,8 @@ class AddVideoHandlerTest {
 
     @Test
     void handle_duplicateYouTubeUrl_returnsExistsMessage() {
-        // первый раз – сохраняем
-        handler.handle(TEST_USER.getUserId(),userRepo, GOOD_URL);
-
-        // второй раз – дубликат
-        List<String> resp2 = handler.handle(TEST_USER.getUserId(),userRepo, GOOD_URL);
+        handler.handle(TEST_USER.getUserId(), userRepo, GOOD_URL);
+        List<String> resp2 = handler.handle(TEST_USER.getUserId(), userRepo, GOOD_URL);
 
         assertEquals(1, resp2.size());
         assertTrue(resp2.get(0).startsWith("Видео уже существует:"));
@@ -62,14 +59,10 @@ class AddVideoHandlerTest {
 
     @Test
     void handle_badUrl_returnsParserErrorMessage() {
-        List<String> resp = handler.handle(TEST_USER.getUserId(),userRepo, BAD_URL);
+        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, BAD_URL);
 
-        // YouTubeUrlParser для "bad" бросит IllegalArgumentException
-        // с текстом "Ссылка не принадлежит Ютубу: bad"
         assertEquals(1, resp.size());
         assertEquals("Ссылка не принадлежит Ютубу: " + BAD_URL, resp.get(0));
-
-        // в репозитории ничего не появилось
         assertTrue(videoRepo.findAll().isEmpty());
     }
 
@@ -92,8 +85,8 @@ class AddVideoHandlerTest {
 
     @Test
     void handle_sameUrlFromDifferentUsers_stillOneVideo() {
-        Integer userA = 1;
-        Integer userB = 2;
+        Long userA = 1L;
+        Long userB = 2L;
 
         handler.handle(userA, userRepo, GOOD_URL);
         List<String> resp = handler.handle(userB, userRepo, GOOD_URL);
@@ -112,8 +105,7 @@ class AddVideoHandlerTest {
                 "Пустая строка должна вернуть одно сообщение об ошибке");
         assertTrue(resp.get(0).toLowerCase().contains("ссылка"),
                 "Сообщение должно указывать на ошибку ссылки");
-        assertTrue(videoRepo.findAll().isEmpty(),
-                "Видео не должно быть сохранено для пустой строки");
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 
     @Test
@@ -124,14 +116,13 @@ class AddVideoHandlerTest {
                 "Строка из пробелов должна вернуть одно сообщение об ошибке");
         assertTrue(resp.get(0).toLowerCase().contains("ссылка"),
                 "Сообщение должно указывать на ошибку ссылки");
-        assertTrue(videoRepo.findAll().isEmpty(),
-                "Видео не должно быть сохранено для строки из пробелов");
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 
     @Test
     void handle_differentUsersAddingDifferentUrls_allSaved() {
-        Integer userA = 1;
-        Integer userB = 2;
+        Long userA = 1L;
+        Long userB = 2L;
         String url2 = "https://www.youtube.com/watch?v=xyz987";
 
         handler.handle(userA, userRepo, GOOD_URL);
@@ -153,7 +144,6 @@ class AddVideoHandlerTest {
                 "Длинная некорректная ссылка должна вернуть одно сообщение об ошибке");
         assertTrue(resp.get(0).contains("Ссылка не принадлежит Ютубу"),
                 "Сообщение должно явно указывать на неправильный источник");
-        assertTrue(videoRepo.findAll().isEmpty(),
-                "Видео не должно быть сохранено для некорректной ссылки");
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 }

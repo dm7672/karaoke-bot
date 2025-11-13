@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class VideosHandlerTest {
     private IRepository<Video, String> videoRepo;
-    private VideosHandler         handler;
-    private static final User TEST_USER = new User(1, "testPlatform");
-    private IRepository<User, Integer>   userRepo;
+    private VideosHandler handler;
+    private static final User TEST_USER = new User(1L, "testPlatform");
+    private IRepository<User, Long> userRepo;
 
     @BeforeEach
     void setUp() {
@@ -24,20 +24,19 @@ class VideosHandlerTest {
         userRepo  = new InMemoryRepository<>(User::getUserId);
         userRepo.save(TEST_USER);
         handler   = new VideosHandler(videoRepo);
-
     }
 
     @Test
     void canHandle_onlyListVideosCommand() {
-        assertTrue(handler.canHandle(1, userRepo, "/Videos"));
-        assertTrue(handler.canHandle(1, userRepo, "/Videos     "));
-        assertFalse(handler.canHandle(1, userRepo, "/lists"));
-        assertFalse(handler.canHandle(1, userRepo, ""));
+        assertTrue(handler.canHandle(1L, userRepo, "/Videos"));
+        assertTrue(handler.canHandle(1L, userRepo, "/Videos     "));
+        assertFalse(handler.canHandle(1L, userRepo, "/lists"));
+        assertFalse(handler.canHandle(1L, userRepo, ""));
     }
 
     @Test
     void handle_noVideos_returnsEmptyNotice() {
-        List<String> resp = handler.handle(42, userRepo, "/Videos");
+        List<String> resp = handler.handle(42L, userRepo, "/Videos");
         assertEquals(1, resp.size());
         assertEquals("Ещё нет добавленных видео.", resp.get(0));
     }
@@ -45,30 +44,30 @@ class VideosHandlerTest {
     @Test
     void handle_withVideos_filtersByUser() {
         Video v1 = new Video("u1","p","id1",0,"t");
-        v1.setUserAdded(5);
+        v1.setUserAdded(5L);
         Video v2 = new Video("u2","p","id2",0,"t");
-        v2.setUserAdded(6);
+        v2.setUserAdded(6L);
         videoRepo.save(v1);
         videoRepo.save(v2);
 
-        List<String> resp = handler.handle(5, userRepo, "/Videos");
+        List<String> resp = handler.handle(5L, userRepo, "/Videos");
         assertEquals(2, resp.size());
         assertTrue(resp.contains("u1"));
     }
+
     @Test
     void handle_multipleVideosForSameUser_listsAll() {
         Video v1 = new Video("u1","p","id1",0,"t");
-        v1.setUserAdded(42);
+        v1.setUserAdded(42L);
         Video v2 = new Video("u2","p","id2",0,"t");
-        v2.setUserAdded(42);
+        v2.setUserAdded(42L);
         videoRepo.save(v1);
         videoRepo.save(v2);
 
-        List<String> resp = handler.handle(42, userRepo, "/Videos");
+        List<String> resp = handler.handle(42L, userRepo, "/Videos");
         assertEquals(2, resp.size(),
                 "Оба видео одного пользователя должны быть выведены");
         assertTrue(resp.stream().anyMatch(s -> s.contains("u1")));
         assertTrue(resp.stream().anyMatch(s -> s.contains("u2")));
     }
-
 }

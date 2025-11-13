@@ -15,12 +15,12 @@ public class VideosHandler implements MessageHandler {
     }
 
     @Override
-    public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
         return "/Videos".equalsIgnoreCase(text.trim());
     }
 
     @Override
-    public List<String> handle(Integer userId,IRepository<User, Integer> userRepo, String text) {
+    public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
         List<String> urls = videoRepo.findAll().stream()
                 .map(Video::getUrl)
                 .collect(Collectors.toList());

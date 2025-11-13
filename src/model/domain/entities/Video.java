@@ -11,7 +11,7 @@ public class Video {
     private final String url;
     private final LocalDateTime timeAdded;
 
-    private Integer userAdded;
+    private Long userAdded;
 
     public Video(String url, String platform, String videoId, Integer startTime, String type) {
         this.platform = platform;
@@ -28,7 +28,7 @@ public class Video {
     public String getType() { return type; }
     public String getUrl() {return url;}
     public LocalDateTime getTimeAdded() {return timeAdded;}
-    public Integer getUserAdded() {return userAdded;}
+    public Long getUserAdded() {return userAdded;}
 
-    public void setUserAdded(Integer userId){this.userAdded = userId;}
+    public void setUserAdded(Long userId){this.userAdded = userId;}
 }
