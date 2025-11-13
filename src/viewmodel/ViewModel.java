@@ -8,11 +8,11 @@ import viewmodel.message.handler.*;
 import java.util.List;
 
 public class ViewModel {
-    private final IRepository<User, Integer> userRepo;
+    private final IRepository<User, Long> userRepo;
     private final List<MessageHandler>      handlers;
 
     public ViewModel(
-            IRepository<User, Integer> userRepo,
+            IRepository<User, Long> userRepo,
             IRepository<Video, String> videoRepo,
             IUrlParser urlParser,
             String platform) {
@@ -27,7 +27,7 @@ public class ViewModel {
         );
     }
 
-    public List<String> processMessage(Integer userId, String text) {
+    public List<String> processMessage(Long userId, String text) {
         // Ищем первый подходящий обработчик
         for (MessageHandler h : handlers) {
             if (h.canHandle(userId,userRepo,text)) {

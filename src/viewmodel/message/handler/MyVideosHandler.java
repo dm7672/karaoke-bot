@@ -14,12 +14,12 @@ public MyVideosHandler(IRepository<Video, String> videoRepo ) {
 }
 
 @Override
-public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
     return "/MyVideos".equalsIgnoreCase(text.trim());
 }
 
 @Override
-public List<String> handle(Integer userId,IRepository<User, Integer> userRepo, String text) {
+public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
     List<String> urls = videoRepo.findAll().stream()
             .filter(v -> userId.equals(v.getUserAdded()))
             .map(Video::getUrl)

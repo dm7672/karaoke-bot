@@ -14,11 +14,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ViewModelTest {
-    private static final Integer TEST_USER = 42;
+    private static final Long TEST_USER = 42L;
     private static final String  GOOD_URL  = "https://www.youtube.com/watch?v=UQyei4cdGFY";
     private static final String  BAD_URL   = "bad";
 
-    private IRepository<User, Integer>   userRepo;
+    private IRepository<User, Long>   userRepo;
     private IRepository<Video, String>   videoRepo;
     private ViewModel                    vm;
 
@@ -120,8 +120,8 @@ class ViewModelTest {
     }
     @Test
     void multipleUsers_areHandledIndependently() {
-        Integer userA = 1;
-        Integer userB = 2;
+        Long userA = 1L;
+        Long userB = 2L;
 
         vm.processMessage(userA, "/start");
         vm.processMessage(userB, "/start");

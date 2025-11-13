@@ -47,7 +47,7 @@ public class ConsoleView implements View {
             }
 
             try {
-                Integer userId = Integer.valueOf(parts[0]);
+                Long userId = Long.valueOf(parts[0]);
                 String message = parts[1];
 
                 List<String> responses = viewModel.processMessage(userId, message);

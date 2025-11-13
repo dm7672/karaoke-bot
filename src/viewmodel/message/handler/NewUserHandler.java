@@ -8,19 +8,19 @@ import java.util.List;
 public class NewUserHandler implements MessageHandler {
     private final String                    defaultPlatform;
 
-    public NewUserHandler(IRepository<User, Integer> userRepo,
+    public NewUserHandler(IRepository<User, Long> userRepo,
                           String defaultPlatform) {
         this.defaultPlatform = defaultPlatform;
     }
 
     @Override
-    public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public boolean canHandle(Long usedId, IRepository<User, Long> userRepo, String text) {
         // обрабатываем только если пользователя ещё нет
-        return !userRepo.existsById(userId);
+        return !userRepo.existsById(usedId);
     }
 
     @Override
-    public List<String> handle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         // сохраняем нового пользователя
         userRepo.save(new User(userId, defaultPlatform));
 

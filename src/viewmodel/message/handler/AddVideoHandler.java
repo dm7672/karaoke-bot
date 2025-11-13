@@ -19,13 +19,13 @@ public class AddVideoHandler implements MessageHandler {
     }
 
     @Override
-    public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
         // Любое сообщение, не начинающееся с "/"
         return !text.startsWith("/") && userRepo.existsById(userId);
     }
 
     @Override
-    public List<String> handle(Integer userId,IRepository<User, Integer> userRepo, String text) {
+    public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
         try {
             // Выбросит IllegalArgumentException с нужным сообщением,
             // если URL некорректен или не YouTube

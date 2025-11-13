@@ -7,12 +7,12 @@ import java.util.List;
 
 public class UnknownCommandHandler implements MessageHandler {
     @Override
-    public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
         return text.startsWith("/") && userRepo.existsById(userId);
     }
 
     @Override
-    public List<String> handle(Integer userId,IRepository<User, Integer> userRepo, String text) {
+    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         return List.of(
                 "Неизвестная команда: " + text,
                 "Для списка команд введите <userId> /help"

@@ -7,12 +7,12 @@ import java.util.List;
 
 public class HelpHandler implements MessageHandler {
     @Override
-    public boolean canHandle(Integer userId, IRepository<User, Integer> userRepo, String text) {
+    public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
         return "/help".equalsIgnoreCase(text.trim()) && userRepo.existsById(userId);
     }
 
     @Override
-    public List<String> handle(Integer userId,IRepository<User, Integer> userRepo, String text) {
+    public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
         return List.of(
                 "Как работать с ботом:",
                 "  • Отправьте URL видео — оно будет добавлено, если его ещё нет.",

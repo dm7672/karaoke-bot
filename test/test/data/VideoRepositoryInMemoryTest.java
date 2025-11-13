@@ -24,7 +24,7 @@ class VideoRepositoryInMemoryTest {
     @Test
     void saveAndFindById() {
         Video v = new Video("url", "yt", "vid123", 10, "clip");
-        v.setUserAdded(99);
+        v.setUserAdded(99L);
         repo.save(v);
 
         Video fetched = repo.findById("vid123");
