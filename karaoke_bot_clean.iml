@@ -91,6 +91,44 @@
       </library>
     </orderEntry>
 
+    <orderEntry type="module-library">
+      <library name="Mockito">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/mockito-core-4.0.0.jar!/" />
+        </CLASSES>
+      </library>
+    </orderEntry>
+
+    <orderEntry type="module-library">
+      <library name="Mockito">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/mockito-core-4.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+
+    <orderEntry type="module-library">
+      <library name="ByteBuddy">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/byte-buddy-1.11.22.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/byte-buddy-agent-1.11.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+
+    <orderEntry type="module-library">
+      <library name="Objenesis">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/objenesis-3.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
 
   </component>
 </module>
