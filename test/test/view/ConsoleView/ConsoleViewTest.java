@@ -1,4 +1,4 @@
-package test.view;
+package test.view.ConsoleView;
 
 import org.junit.jupiter.api.*;
 import view.ConsoleView;

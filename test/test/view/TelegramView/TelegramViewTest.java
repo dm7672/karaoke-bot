@@ -1,4 +1,4 @@
-package test.TelegramView;
+package test.view.TelegramView;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
