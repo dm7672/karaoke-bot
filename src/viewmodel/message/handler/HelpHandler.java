@@ -16,8 +16,8 @@ public class HelpHandler implements MessageHandler {
         return List.of(
                 "Как работать с ботом:",
                 "  • Отправьте URL видео — оно будет добавлено, если его ещё нет.",
-                "  • /listMyVideos — показать ваши видео.",
-                "  • /listVideos — показать все видео.",
+                "  • /MyVideos — показать ваши видео.",
+                "  • /Videos — показать все видео.",
                 "  • /help — эта помощь."
         );
     }

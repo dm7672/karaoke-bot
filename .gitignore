@@ -73,3 +73,5 @@ config.properties
 application.properties
 application.yml
 secret.*
+tokens/
+src/resources/
