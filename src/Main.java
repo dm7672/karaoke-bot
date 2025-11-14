@@ -4,10 +4,7 @@ import model.domain.entities.*;
 import model.domain.parcer.*;
 import view.*;
 import viewmodel.*;
-import model.domain.youtube.*;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import model.domain.youtube.YouTubeInitializer;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,21 +12,8 @@ public class Main {
         IRepository<Video, String> videoRepo = new InMemoryRepository<>(Video::getVideoId);
         IUrlParser urlParser = new YouTubeUrlParser();
         String platform = "telegram";
-        final Dotenv dotenv = Dotenv.load();
-        // Пытаемся инициализировать YouTubeService
-        try {
-            String playlistId = dotenv.get("YT_PLAYLIST_ID");
-            if (playlistId != null && !playlistId.isBlank()) {
-                YouTubeService yt = new YouTubeService(playlistId);
-                YouTubeServiceHolder.set(yt);
-                System.out.println("YouTubeService установлен в holder.");
-            } else {
-                System.out.println("YT_PLAYLIST_ID не задан - запускаем без YouTube.");
-            }
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-            System.out.println("Не удалось инициализировать YouTubeService - запускаем без интеграции.");
-        }
+
+        YouTubeInitializer.init();
 
         ViewModel vm = new ViewModel(userRepo, videoRepo, urlParser, platform);
 
