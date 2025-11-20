@@ -1,6 +1,6 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 

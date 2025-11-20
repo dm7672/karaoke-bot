@@ -1,10 +1,10 @@
 package viewmodel;
 
+import data.IRepository;
 import model.domain.entities.*;
-import model.data.*;
 import model.domain.parcer.IUrlParser;
+import services.youtube.YouTubeService;
 import viewmodel.message.handler.*;
-import model.domain.youtube.*;
 
 import java.util.List;
 
@@ -16,12 +16,11 @@ public class ViewModel {
             IRepository<User, Long> userRepo,
             IRepository<Video, String> videoRepo,
             IUrlParser urlParser,
-            String platform) {
+            String platform,
+            YouTubeService yt) {
         this.userRepo  = userRepo;
 
         // Получаем YouTubeService (может быть null) из holder
-        var yt = YouTubeServiceHolder.get();
-
         this.handlers = List.of(
                 new NewUserHandler(userRepo, platform),
                 new HelpHandler(),

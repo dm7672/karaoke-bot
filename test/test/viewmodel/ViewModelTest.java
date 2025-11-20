@@ -1,7 +1,7 @@
 package test.viewmodel;
 
-import model.data.InMemoryRepository;
-import model.data.IRepository;
+import data.InMemoryRepository;
+import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.YouTubeUrlParser;
@@ -30,7 +30,8 @@ class ViewModelTest {
                 userRepo,
                 videoRepo,
                 new YouTubeUrlParser(),
-                "console"
+                "console",
+                null
         );
     }
 

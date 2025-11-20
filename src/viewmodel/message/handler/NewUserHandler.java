@@ -1,6 +1,6 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import data.IRepository;
 import model.domain.entities.User;
 
 import java.util.List;
@@ -28,14 +28,14 @@ public class NewUserHandler implements MessageHandler {
         if ("/start".equalsIgnoreCase(text.trim())) {
             return List.of(
                     "Добро пожаловать! Я бот для добавления YouTube-видео.",
-                    "Чтобы узнать доступные команды, введите <userId> /help"
+                    "Чтобы узнать доступные команды, введите  /help"
             );
         }
 
         // при любом другом первом сообщении тоже сохраняем и подсказываем /help
         return List.of(
                 "Привет! Ты зарегистрирован как пользователь",
-                "Для списка команд введи <userId> /help"
+                "Для списка команд введи /help"
         );
     }
 }

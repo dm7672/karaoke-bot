@@ -30,7 +30,7 @@ class ConsoleViewTest {
     }
 
     private ViewModel stubVmReturning(List<String> responses) {
-        return new ViewModel(null, null, null, "test") {
+        return new ViewModel(null, null, null, null,null) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 return responses;
@@ -79,7 +79,7 @@ class ConsoleViewTest {
     void validInputDelegatesToViewModelAndPrintsResponses() {
         String input = "42 hi\nexit\n";
         ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
+        view.setViewModel(new ViewModel(null, null, null, "test", null) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 assertEquals(42L, userId);
@@ -111,7 +111,7 @@ class ConsoleViewTest {
     void multipleValidInputsAllProcessed() {
         String input = "1 hello\n2 world\nexit\n";
         ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
+        view.setViewModel(new ViewModel(null, null, null, "test", null) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 return List.of("resp:" + userId + ":" + msg);
@@ -129,7 +129,7 @@ class ConsoleViewTest {
     void processMessageReturnsEmptyListPrintsNothingExtra() {
         String input = "5 test\nexit\n";
         ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
+        view.setViewModel(new ViewModel(null, null, null, "test", null) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 return List.of(); // пустой список
@@ -148,7 +148,7 @@ class ConsoleViewTest {
     void veryLargeUserIdIsHandled() {
         String input = "999999999 hello\nexit\n";
         ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
+        view.setViewModel(new ViewModel(null, null, null, "test",null) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 assertEquals(999999999L, userId);

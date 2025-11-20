@@ -1,10 +1,10 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
-import model.domain.youtube.YouTubeService;
+import services.youtube.YouTubeService;
 
 import java.io.IOException;
 import java.util.List;
