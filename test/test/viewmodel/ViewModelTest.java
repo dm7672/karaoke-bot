@@ -5,13 +5,18 @@ import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.YouTubeUrlParser;
+import services.youtube.IYouTubeService;
 import viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ViewModelTest {
     private static final Long TEST_USER = 42L;
@@ -23,15 +28,17 @@ class ViewModelTest {
     private ViewModel                    vm;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         userRepo  = new InMemoryRepository<>(User::getUserId);
         videoRepo = new InMemoryRepository<>(Video::getVideoId);
+        IYouTubeService ytMock = mock(IYouTubeService.class);
+        when(ytMock.addVideoToPlaylist(anyString())).thenReturn("mocked id");
         vm        = new ViewModel(
                 userRepo,
                 videoRepo,
                 new YouTubeUrlParser(),
                 "console",
-                null
+                ytMock
         );
     }
 

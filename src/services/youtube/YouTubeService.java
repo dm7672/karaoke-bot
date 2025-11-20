@@ -19,7 +19,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class YouTubeService {
+public class YouTubeService implements IYouTubeService{
     private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148-igstb5h9vacbm5291dml39jeehkjsdqm.apps.googleusercontent.com.json"; // положите в resources
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
@@ -64,6 +64,7 @@ public class YouTubeService {
     /**
      * Добавляет видео в плейлист. Возвращает id созданного PlaylistItem.
      */
+    @Override
     public String addVideoToPlaylist(String videoId) throws IOException {
 
         ResourceId resourceId = new ResourceId();

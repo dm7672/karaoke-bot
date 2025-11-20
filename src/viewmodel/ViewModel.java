@@ -3,7 +3,7 @@ package viewmodel;
 import data.IRepository;
 import model.domain.entities.*;
 import model.domain.parcer.IUrlParser;
-import services.youtube.YouTubeService;
+import services.youtube.*;
 import viewmodel.message.handler.*;
 
 import java.util.List;
@@ -17,10 +17,9 @@ public class ViewModel {
             IRepository<Video, String> videoRepo,
             IUrlParser urlParser,
             String platform,
-            YouTubeService yt) {
+            IYouTubeService yt) {
         this.userRepo  = userRepo;
 
-        // Получаем YouTubeService (может быть null) из holder
         this.handlers = List.of(
                 new NewUserHandler(userRepo, platform),
                 new HelpHandler(),

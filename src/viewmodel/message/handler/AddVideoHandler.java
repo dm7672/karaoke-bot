@@ -4,7 +4,7 @@ import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
-import services.youtube.YouTubeService;
+import services.youtube.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class AddVideoHandler implements MessageHandler {
     private final IRepository<Video, String> videoRepo;
     private final IUrlParser urlParser;
-    private final YouTubeService youTubeService; // может быть null
+    private final IYouTubeService youTubeService; // может быть null
 
     // Конструктор для совместимости с тестами
     public AddVideoHandler(IRepository<Video, String> videoRepo,
@@ -24,7 +24,7 @@ public class AddVideoHandler implements MessageHandler {
     // Новый конструктор — с интеграцией YouTube
     public AddVideoHandler(IRepository<Video, String> videoRepo,
                            IUrlParser urlParser,
-                           YouTubeService youTubeService) {
+                           IYouTubeService youTubeService) {
         this.videoRepo = videoRepo;
         this.urlParser = urlParser;
         this.youTubeService = youTubeService;
