@@ -7,6 +7,9 @@ import view.*;
 import viewmodel.*;
 import services.youtube.YouTubeInitializer;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public class Main {
     public static void main(String[] args) {
         IRepository<User, Long> userRepo = new InMemoryRepository<>(User::getUserId);
@@ -17,8 +20,7 @@ public class Main {
 
         ViewModel vm = new ViewModel(userRepo, videoRepo, urlParser, platform, yt);
 
-        TelegramView view = new TelegramView();
-        view.setViewModel(vm);
+        TelegramView view = new TelegramView(vm);
         view.start();
     }
 }

@@ -14,14 +14,11 @@ public class ConsoleView implements View {
         this.scanner = new Scanner(System.in);
     }
 
-    public ConsoleView(Scanner scanner) {
+    public ConsoleView(Scanner scanner, ViewModel vm) {
         this.scanner = scanner;
-    }
-
-    @Override
-    public void setViewModel(ViewModel vm) {
         this.viewModel = vm;
     }
+
 
     @Override
     public void start() {

@@ -16,10 +16,10 @@ public class TelegramView extends TelegramLongPollingBot implements View {
     private ViewModel viewModel;
     private final Dotenv dotenv = Dotenv.load();
 
-    @Override
-    public void setViewModel(ViewModel vm) {
-        this.viewModel = vm;
+    public TelegramView(ViewModel vm){
+        viewModel = vm;
     }
+
 
     @Override
     public void start() {
