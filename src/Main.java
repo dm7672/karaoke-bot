@@ -12,15 +12,9 @@ import com.google.inject.Injector;
 
 public class Main {
     public static void main(String[] args) {
-        IRepository<User, Long> userRepo = new InMemoryRepository<>(User::getUserId);
-        IRepository<Video, String> videoRepo = new InMemoryRepository<>(Video::getVideoId);
-        IUrlParser urlParser = new YouTubeUrlParser();
-        String platform = "telegram";
-        YouTubeService yt = YouTubeInitializer.init();
-
-        ViewModel vm = new ViewModel(userRepo, videoRepo, urlParser, platform, yt);
-
-        TelegramView view = new TelegramView(vm);
+        Injector injector = Guice.createInjector(new AppModule());
+        TelegramView view = injector.getInstance(TelegramView.class);
         view.start();
     }
 }
+

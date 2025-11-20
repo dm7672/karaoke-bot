@@ -6,7 +6,14 @@ import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.YouTubeUrlParser;
 import services.youtube.IYouTubeService;
-import viewmodel.*;
+import viewmodel.ViewModel;
+import viewmodel.message.handler.AddVideoHandler;
+import viewmodel.message.handler.HelpHandler;
+import viewmodel.message.handler.MessageHandler;
+import viewmodel.message.handler.MyVideosHandler;
+import viewmodel.message.handler.NewUserHandler;
+import viewmodel.message.handler.UnknownCommandHandler;
+import viewmodel.message.handler.VideosHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,23 +30,28 @@ class ViewModelTest {
     private static final String  GOOD_URL  = "https://www.youtube.com/watch?v=UQyei4cdGFY";
     private static final String  BAD_URL   = "bad";
 
-    private IRepository<User, Long>   userRepo;
-    private IRepository<Video, String>   videoRepo;
-    private ViewModel                    vm;
+    private IRepository<User, Long>     userRepo;
+    private IRepository<Video, String>  videoRepo;
+    private ViewModel                   vm;
 
     @BeforeEach
     void setUp() throws IOException {
         userRepo  = new InMemoryRepository<>(User::getUserId);
         videoRepo = new InMemoryRepository<>(Video::getVideoId);
+
         IYouTubeService ytMock = mock(IYouTubeService.class);
         when(ytMock.addVideoToPlaylist(anyString())).thenReturn("mocked id");
-        vm        = new ViewModel(
-                userRepo,
-                videoRepo,
-                new YouTubeUrlParser(),
-                "console",
-                ytMock
+
+        List<MessageHandler> handlers = List.of(
+                new NewUserHandler(userRepo, "console"),
+                new HelpHandler(),
+                new VideosHandler(videoRepo),
+                new MyVideosHandler(videoRepo),
+                new AddVideoHandler(videoRepo, new YouTubeUrlParser(), ytMock),
+                new UnknownCommandHandler()
         );
+
+        vm = new ViewModel(userRepo, handlers);
     }
 
     @Test
@@ -112,6 +124,7 @@ class ViewModelTest {
         assertTrue(videoRepo.findAll().isEmpty(),
                 "Для некорректной ссылки видео не должно сохраняться");
     }
+
     @Test
     void startCommand_twice_doesNotDuplicateUser() {
         // первый вызов /start
@@ -126,6 +139,7 @@ class ViewModelTest {
         assertEquals(1, userRepo.findAll().size(),
                 "Количество пользователей не должно увеличиться при повторном /start");
     }
+
     @Test
     void multipleUsers_areHandledIndependently() {
         Long userA = 1L;

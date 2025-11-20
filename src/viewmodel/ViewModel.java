@@ -1,10 +1,10 @@
 package viewmodel;
 
+// ViewModel.java
+import com.google.inject.Inject;
 import data.IRepository;
-import model.domain.entities.*;
-import model.domain.parcer.IUrlParser;
-import services.youtube.*;
-import viewmodel.message.handler.*;
+import model.domain.entities.User;
+import viewmodel.message.handler.MessageHandler;
 
 import java.util.List;
 
@@ -12,22 +12,11 @@ public class ViewModel {
     private final IRepository<User, Long> userRepo;
     private final List<MessageHandler> handlers;
 
-    public ViewModel(
-            IRepository<User, Long> userRepo,
-            IRepository<Video, String> videoRepo,
-            IUrlParser urlParser,
-            String platform,
-            IYouTubeService yt) {
-        this.userRepo  = userRepo;
-
-        this.handlers = List.of(
-                new NewUserHandler(userRepo, platform),
-                new HelpHandler(),
-                new VideosHandler(videoRepo),
-                new MyVideosHandler(videoRepo),
-                new AddVideoHandler(videoRepo, urlParser, yt),
-                new UnknownCommandHandler()
-        );
+    @Inject
+    public ViewModel(IRepository<User, Long> userRepo,
+                     List<MessageHandler> handlers) {
+        this.userRepo = userRepo;
+        this.handlers = handlers;
     }
 
     public List<String> processMessage(Long userId, String text) {

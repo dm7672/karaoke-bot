@@ -1,5 +1,6 @@
 package view;
 
+import com.google.inject.Inject;
 import viewmodel.ViewModel;
 
 import java.util.List;
@@ -10,15 +11,23 @@ public class ConsoleView implements View {
     private ViewModel viewModel;
     private final Scanner scanner;
 
+    // Default constructor kept for manual construction / tests
     public ConsoleView() {
         this.scanner = new Scanner(System.in);
     }
 
+    // Convenience constructor kept for tests or manual wiring
     public ConsoleView(Scanner scanner, ViewModel vm) {
         this.scanner = scanner;
         this.viewModel = vm;
     }
 
+    // Injected constructor for Guice usage
+    @Inject
+    public ConsoleView(ViewModel vm) {
+        this.scanner = new Scanner(System.in);
+        this.viewModel = vm;
+    }
 
     @Override
     public void start() {
