@@ -1,7 +1,8 @@
 package test.data;
 
+import data.IRepository;
+import data.InMemoryRepository;
 import model.domain.entities.User;
-import model.data.*;
 import org.junit.jupiter.api.*;
 import java.util.List;
 import java.util.NoSuchElementException;

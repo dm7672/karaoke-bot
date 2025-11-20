@@ -20,6 +20,9 @@ class TelegramViewTest {
 
     static class TestableTelegramView extends TelegramView {
         List<SendMessage> sentMessages = new ArrayList<>();
+        public TestableTelegramView(ViewModel vm) {
+            super(vm);
+        }
         @Override
         public <T extends Serializable, Method extends org.telegram.telegrambots.meta.api.methods.BotApiMethod<T>> T execute(Method method) {
             if (method instanceof SendMessage) {
@@ -34,9 +37,8 @@ class TelegramViewTest {
 
     @BeforeEach
     void setUp() {
-        telegramView = new TestableTelegramView();
         mockVm = mock(ViewModel.class);
-        telegramView.setViewModel(mockVm);
+        telegramView = new TestableTelegramView(mockVm);
     }
 
     private Update makeUpdate(Long userId, Long chatId, String text) {

@@ -1,6 +1,7 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import com.google.inject.Inject;
+import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 public class VideosHandler implements MessageHandler {
     private final IRepository<Video, String> videoRepo;
 
+    @Inject
     public VideosHandler(IRepository<Video, String> videoRepo) {
         this.videoRepo = videoRepo;
     }
@@ -20,7 +22,7 @@ public class VideosHandler implements MessageHandler {
     }
 
     @Override
-    public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
+    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         List<String> urls = videoRepo.findAll().stream()
                 .map(Video::getUrl)
                 .collect(Collectors.toList());

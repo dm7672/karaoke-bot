@@ -1,23 +1,24 @@
 package view;
 
+import com.google.inject.Inject;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import io.github.cdimascio.dotenv.Dotenv;
 import viewmodel.ViewModel;
 
 import java.util.List;
 
 public class TelegramView extends TelegramLongPollingBot implements View {
-    private ViewModel viewModel;
+    private final ViewModel viewModel;
     private final Dotenv dotenv = Dotenv.load();
 
-    @Override
-    public void setViewModel(ViewModel vm) {
+    @Inject
+    public TelegramView(ViewModel vm) {
         this.viewModel = vm;
     }
 
@@ -63,5 +64,4 @@ public class TelegramView extends TelegramLongPollingBot implements View {
     public String getBotToken() {
         return dotenv.get("BOT_TOKEN");
     }
-
 }

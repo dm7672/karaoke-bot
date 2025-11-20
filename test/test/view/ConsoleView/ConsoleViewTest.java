@@ -30,7 +30,7 @@ class ConsoleViewTest {
     }
 
     private ViewModel stubVmReturning(List<String> responses) {
-        return new ViewModel(null, null, null, "test") {
+        return new ViewModel(null, List.of()) {
             @Override
             public List<String> processMessage(Long userId, String msg) {
                 return responses;
@@ -41,8 +41,10 @@ class ConsoleViewTest {
     @Test
     void exitImmediatelyPrintsPromptAndExit() {
         String input = "exit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(stubVmReturning(List.of()));
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                stubVmReturning(List.of())
+        );
 
         view.start();
 
@@ -54,8 +56,10 @@ class ConsoleViewTest {
     @Test
     void invalidFormatPrintsError() {
         String input = "123\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(stubVmReturning(List.of()));
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                stubVmReturning(List.of())
+        );
 
         view.start();
 
@@ -66,8 +70,10 @@ class ConsoleViewTest {
     @Test
     void nonNumericUserIdPrintsError() {
         String input = "abc hello\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(stubVmReturning(List.of()));
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                stubVmReturning(List.of())
+        );
 
         view.start();
 
@@ -78,15 +84,17 @@ class ConsoleViewTest {
     @Test
     void validInputDelegatesToViewModelAndPrintsResponses() {
         String input = "42 hi\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
-            @Override
-            public List<String> processMessage(Long userId, String msg) {
-                assertEquals(42L, userId);
-                assertEquals("hi", msg);
-                return List.of("resp1", "resp2");
-            }
-        });
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                new ViewModel(null, List.of()) {
+                    @Override
+                    public List<String> processMessage(Long userId, String msg) {
+                        assertEquals(42L, userId);
+                        assertEquals("hi", msg);
+                        return List.of("resp1", "resp2");
+                    }
+                }
+        );
 
         view.start();
 
@@ -98,8 +106,10 @@ class ConsoleViewTest {
     @Test
     void emptyLineIsIgnored() {
         String input = "\n42 hello\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(stubVmReturning(List.of("ok")));
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                stubVmReturning(List.of("ok"))
+        );
 
         view.start();
 
@@ -110,13 +120,15 @@ class ConsoleViewTest {
     @Test
     void multipleValidInputsAllProcessed() {
         String input = "1 hello\n2 world\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
-            @Override
-            public List<String> processMessage(Long userId, String msg) {
-                return List.of("resp:" + userId + ":" + msg);
-            }
-        });
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                new ViewModel(null, List.of()) {
+                    @Override
+                    public List<String> processMessage(Long userId, String msg) {
+                        return List.of("resp:" + userId + ":" + msg);
+                    }
+                }
+        );
 
         view.start();
 
@@ -128,13 +140,15 @@ class ConsoleViewTest {
     @Test
     void processMessageReturnsEmptyListPrintsNothingExtra() {
         String input = "5 test\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
-            @Override
-            public List<String> processMessage(Long userId, String msg) {
-                return List.of(); // пустой список
-            }
-        });
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                new ViewModel(null, List.of()) {
+                    @Override
+                    public List<String> processMessage(Long userId, String msg) {
+                        return List.of();
+                    }
+                }
+        );
 
         view.start();
 
@@ -147,14 +161,16 @@ class ConsoleViewTest {
     @Test
     void veryLargeUserIdIsHandled() {
         String input = "999999999 hello\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(new ViewModel(null, null, null, "test") {
-            @Override
-            public List<String> processMessage(Long userId, String msg) {
-                assertEquals(999999999L, userId);
-                return List.of("big id ok");
-            }
-        });
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                new ViewModel(null, List.of()) {
+                    @Override
+                    public List<String> processMessage(Long userId, String msg) {
+                        assertEquals(999999999L, userId);
+                        return List.of("big id ok");
+                    }
+                }
+        );
 
         view.start();
 
@@ -165,8 +181,10 @@ class ConsoleViewTest {
     @Test
     void inputWithoutMessageShowsError() {
         String input = "42\nexit\n";
-        ConsoleView view = new ConsoleView(new Scanner(new ByteArrayInputStream(input.getBytes())));
-        view.setViewModel(stubVmReturning(List.of("should not be called")));
+        ConsoleView view = new ConsoleView(
+                new Scanner(new ByteArrayInputStream(input.getBytes())),
+                stubVmReturning(List.of("should not be called"))
+        );
 
         view.start();
 

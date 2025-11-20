@@ -1,18 +1,22 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import com.google.inject.Inject;
+import data.IRepository;
 import model.domain.entities.User;
 
 import java.util.List;
 
 public class HelpHandler implements MessageHandler {
+    @Inject
+    public HelpHandler() { }
+
     @Override
     public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
-        return "/help".equalsIgnoreCase(text.trim()) && userRepo.existsById(userId);
+        return "/help".equalsIgnoreCase(text == null ? "" : text.trim()) && userRepo.existsById(userId);
     }
 
     @Override
-    public List<String> handle(Long userId,IRepository<User, Long> userRepo, String text) {
+    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         return List.of(
                 "Как работать с ботом:",
                 "  • Отправьте URL видео — оно будет добавлено, если его ещё нет.",

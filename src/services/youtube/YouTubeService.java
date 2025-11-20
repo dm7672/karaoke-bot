@@ -1,4 +1,4 @@
-package model.domain.youtube;
+package services.youtube;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -12,13 +12,14 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import com.google.api.services.youtube.YouTubeScopes;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class YouTubeService {
+public class YouTubeService implements IYouTubeService{
     private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148-igstb5h9vacbm5291dml39jeehkjsdqm.apps.googleusercontent.com.json"; // положите в resources
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
@@ -26,13 +27,17 @@ public class YouTubeService {
     private final YouTube youtube;
     private final String playlistId;
 
-    public YouTubeService(String playlistId) throws GeneralSecurityException, IOException {
+    public YouTubeService() throws GeneralSecurityException, IOException, IllegalStateException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         Credential credential = authorize(httpTransport);
         this.youtube = new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
                 .setApplicationName("AppName")
                 .build();
-        this.playlistId = playlistId;
+        final Dotenv dotenv = Dotenv.load();
+        this.playlistId = dotenv.get("YT_PLAYLIST_ID");
+        if (playlistId == null){
+            throw new IllegalStateException("YT_PLAYLIST_ID не указан");
+        }
     }
 
     private static Credential authorize(final NetHttpTransport httpTransport) throws IOException {
@@ -59,6 +64,7 @@ public class YouTubeService {
     /**
      * Добавляет видео в плейлист. Возвращает id созданного PlaylistItem.
      */
+    @Override
     public String addVideoToPlaylist(String videoId) throws IOException {
 
         ResourceId resourceId = new ResourceId();

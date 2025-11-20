@@ -1,8 +1,8 @@
 package test.viewmodel.message.handler;
 
 import viewmodel.message.handler.*;
-import model.data.InMemoryRepository;
-import model.data.IRepository;
+import data.InMemoryRepository;
+import data.IRepository;
 import model.domain.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

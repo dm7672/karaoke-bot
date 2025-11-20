@@ -1,10 +1,11 @@
 package viewmodel.message.handler;
 
-import model.data.IRepository;
+import com.google.inject.Inject;
+import data.IRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
-import model.domain.youtube.YouTubeService;
+import services.youtube.IYouTubeService;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,26 +14,27 @@ import java.util.stream.Collectors;
 public class AddVideoHandler implements MessageHandler {
     private final IRepository<Video, String> videoRepo;
     private final IUrlParser urlParser;
-    private final YouTubeService youTubeService; // может быть null
+    private final IYouTubeService youTubeService; // may be a Noop implementation
 
-    // Конструктор для совместимости с тестами
-    public AddVideoHandler(IRepository<Video, String> videoRepo,
-                           IUrlParser urlParser) {
-        this(videoRepo, urlParser, null);
-    }
-
-    // Новый конструктор — с интеграцией YouTube
+    // Main constructor for Guice
+    @Inject
     public AddVideoHandler(IRepository<Video, String> videoRepo,
                            IUrlParser urlParser,
-                           YouTubeService youTubeService) {
+                           IYouTubeService youTubeService) {
         this.videoRepo = videoRepo;
         this.urlParser = urlParser;
         this.youTubeService = youTubeService;
     }
 
+    // Convenience constructor for tests (keeps backwards compatibility)
+    public AddVideoHandler(IRepository<Video, String> videoRepo,
+                           IUrlParser urlParser) {
+        this(videoRepo, urlParser, null);
+    }
+
     @Override
     public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
-        // Любое сообщение, не начинающееся с "/"
+        // Any message not starting with "/" and only if user exists
         return text != null && !text.startsWith("/") && userRepo.existsById(userId);
     }
 
@@ -51,28 +53,22 @@ public class AddVideoHandler implements MessageHandler {
                 return List.of("Видео уже существует: " + video.getUrl());
             }
 
-            // Сохраняем локально
+            // Save locally
             videoRepo.save(video);
 
-            // Если YouTubeService передан — попробуем добавить в плейлист
+            // If YouTubeService is provided — try to add to playlist
             if (youTubeService != null) {
                 try {
                     String playlistItemId = youTubeService.addVideoToPlaylist(video.getVideoId());
-                    // Можно сохранять playlistItemId куда-нибудь, если нужно
                     return List.of("Видео добавлено: " + video.getUrl() +
                             "\nДобавлено в плейлист (playlistItemId): " + playlistItemId);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return List.of(
-                            "Не удалось добавить в YouTube-плейлист: " + video.getUrl() + e.getMessage()
-                    );
+                    return List.of("Не удалось добавить в YouTube-плейлист: " + video.getUrl() + " — " + e.getMessage());
                 }
             } else {
-                return List.of(
-                        "Не удалось добавить установить соединение с YouTube"
-                );
+                return List.of("Не удалось установить соединение с YouTube");
             }
-
         } catch (IllegalArgumentException ex) {
             return List.of(ex.getMessage());
         }

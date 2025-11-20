@@ -1,19 +1,23 @@
 package test.viewmodel.message.handler;
 
-import model.data.IRepository;
-import model.data.InMemoryRepository;
+import data.IRepository;
+import data.InMemoryRepository;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
 import model.domain.parcer.YouTubeUrlParser;
+import services.youtube.IYouTubeService;
+import services.youtube.YouTubeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import viewmodel.message.handler.AddVideoHandler;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 class AddVideoHandlerTest {
     private static final User TEST_USER = new User(1L, "testPlatform");
@@ -26,12 +30,15 @@ class AddVideoHandlerTest {
     private AddVideoHandler handler;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException{
         videoRepo = new InMemoryRepository<>(Video::getUrl);
         userRepo = new InMemoryRepository<>(User::getUserId);
         userRepo.save(TEST_USER);
         urlParser = new YouTubeUrlParser();
-        handler = new AddVideoHandler(videoRepo, urlParser);
+        IYouTubeService ytMock = mock(IYouTubeService.class);
+        when(ytMock.addVideoToPlaylist(anyString())).thenReturn("mocked id");
+        handler = new AddVideoHandler(videoRepo, urlParser, ytMock);
+
     }
 
     @Test
