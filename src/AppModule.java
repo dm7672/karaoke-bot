@@ -10,6 +10,8 @@ import model.domain.parcer.YouTubeUrlParser;
 import services.youtube.IYouTubeService;
 import services.youtube.YouTubeService;
 import viewmodel.message.handler.*;
+import data.*;
+import data.sqlite.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -18,10 +20,12 @@ import java.util.List;
 public class AppModule extends AbstractModule {
     @Override
     protected void configure() {
+        DatabaseInitializer.init();
+
         bind(new com.google.inject.TypeLiteral<IRepository<User, Long>>() {})
-                .toInstance(new InMemoryRepository<>(User::getUserId));
+                .toInstance(new SQLiteUserRepository());
         bind(new com.google.inject.TypeLiteral<IRepository<Video, String>>() {})
-                .toInstance(new InMemoryRepository<>(Video::getVideoId));
+                .toInstance(new SQLiteVideoRepository());
 
         bind(IUrlParser.class).to(YouTubeUrlParser.class).in(Singleton.class);
 
