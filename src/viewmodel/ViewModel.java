@@ -1,6 +1,5 @@
 package viewmodel;
 
-// ViewModel.java
 import com.google.inject.Inject;
 import data.IRepository;
 import model.domain.entities.User;
