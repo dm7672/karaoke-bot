@@ -16,7 +16,7 @@ public class AddVideoHandler implements MessageHandler {
     private final IUrlParser urlParser;
     private final IYouTubeService youTubeService; // may be a Noop implementation
 
-    // Main constructor for Guice
+    // app.Main constructor for Guice
     @Inject
     public AddVideoHandler(IRepository<Video, String> videoRepo,
                            IUrlParser urlParser,

@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class YouTubeService implements IYouTubeService{
-    private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148-igstb5h9vacbm5291dml39jeehkjsdqm.apps.googleusercontent.com.json"; // положите в resources
+    private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148_igstb5h9vacbm5291dml39jeehkjsdqm_apps.json"; // положите в resources
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
