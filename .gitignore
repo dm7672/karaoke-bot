@@ -77,6 +77,5 @@ tokens/
 src/resources/
 
 # === Coverage and local DB ===
-jacoco.exec
 karaoke.db
 coverage-report/
