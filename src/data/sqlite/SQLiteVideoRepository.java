@@ -32,14 +32,15 @@ public class SQLiteVideoRepository extends SQLiteRepository<Video, String> {
         LocalDateTime timeAdded = timeAddedStr != null ? LocalDateTime.parse(timeAddedStr, ISO) : LocalDateTime.now();
 
         Long userAdded = rs.getObject("userAdded") == null ? null : rs.getLong("userAdded");
+        String playlistItemId = rs.getString("playlistItemId");
 
-        return new Video(url, platform, videoId, startTime, type, timeAdded, userAdded);
+        return new Video(url, platform, videoId, startTime, type, timeAdded, userAdded, playlistItemId);
     }
 
     @Override
     protected PreparedStatement createInsertStatement(Connection c, Video entity) throws SQLException {
         PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO videos (videoId, url, platform, startTime, type, timeAdded, userAdded) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                "INSERT INTO videos (videoId, url, platform, startTime, type, timeAdded, userAdded, playlistItemId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
         ps.setString(1, entity.getVideoId());
         ps.setString(2, entity.getUrl());
@@ -50,13 +51,14 @@ public class SQLiteVideoRepository extends SQLiteRepository<Video, String> {
         ps.setString(6, entity.getTimeAdded().format(ISO));
         if (entity.getUserAdded() != null) ps.setLong(7, entity.getUserAdded());
         else ps.setNull(7, Types.INTEGER);
+        ps.setString(8, entity.getPlaylistItemId());
         return ps;
     }
 
     @Override
     protected PreparedStatement createUpdateStatement(Connection c, Video entity) throws SQLException {
         PreparedStatement ps = c.prepareStatement(
-                "UPDATE videos SET url = ?, platform = ?, startTime = ?, type = ?, timeAdded = ?, userAdded = ? WHERE videoId = ?"
+                "UPDATE videos SET url = ?, platform = ?, startTime = ?, type = ?, timeAdded = ?, userAdded = ?, playlistItemId = ? WHERE videoId = ?"
         );
         ps.setString(1, entity.getUrl());
         ps.setString(2, entity.getPlatform());
@@ -66,7 +68,8 @@ public class SQLiteVideoRepository extends SQLiteRepository<Video, String> {
         ps.setString(5, entity.getTimeAdded().format(ISO));
         if (entity.getUserAdded() != null) ps.setLong(6, entity.getUserAdded());
         else ps.setNull(6, Types.INTEGER);
-        ps.setString(7, entity.getVideoId());
+        ps.setString(7, entity.getPlaylistItemId());
+        ps.setString(8, entity.getVideoId());
         return ps;
     }
 

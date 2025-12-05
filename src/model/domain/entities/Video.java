@@ -12,6 +12,7 @@ public class Video {
     private final LocalDateTime timeAdded;
 
     private Long userAdded;
+    private String playlistItemId;
 
     public Video(String url, String platform, String videoId, Integer startTime, String type) {
         this.platform = platform;
@@ -22,9 +23,8 @@ public class Video {
         this.timeAdded = LocalDateTime.now();
     }
 
-    // Новый конструктор с временем добавления
     public Video(String url, String platform, String videoId, Integer startTime, String type,
-                 LocalDateTime timeAdded, Long userAdded) {
+                 LocalDateTime timeAdded, Long userAdded, String playlistItemId) {
         this.platform = platform;
         this.videoId = videoId;
         this.startTime = startTime;
@@ -32,6 +32,7 @@ public class Video {
         this.url = url;
         this.timeAdded = timeAdded != null ? timeAdded : LocalDateTime.now();
         this.userAdded = userAdded;
+        this.playlistItemId = playlistItemId;
     }
 
     public String getPlatform() { return platform; }
@@ -41,6 +42,8 @@ public class Video {
     public String getUrl() { return url; }
     public LocalDateTime getTimeAdded() { return timeAdded; }
     public Long getUserAdded() { return userAdded; }
+    public String getPlaylistItemId() { return playlistItemId; }
 
     public void setUserAdded(Long userId){ this.userAdded = userId; }
+    public void setPlaylistItemId(String playlistItemId) { this.playlistItemId = playlistItemId; }
 }

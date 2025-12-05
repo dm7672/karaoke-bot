@@ -22,7 +22,8 @@ public class HelpHandler implements MessageHandler {
                 "  • Отправьте URL видео — оно будет добавлено, если его ещё нет.",
                 "  • /MyVideos — показать ваши видео.",
                 "  • /Videos — показать все видео.",
-                "  • /help — эта помощь."
+                "  • /help — эта помощь.",
+                "  • /Delete <videoId или URL> - удаление видео"
         );
     }
 }

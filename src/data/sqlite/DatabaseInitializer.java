@@ -10,7 +10,6 @@ public final class DatabaseInitializer {
         try (Connection c = DatabaseConfig.getConnection();
              Statement s = c.createStatement()) {
 
-            // users
             s.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS users (" +
                             "userId INTEGER PRIMARY KEY," +
@@ -18,7 +17,6 @@ public final class DatabaseInitializer {
                             ")"
             );
 
-            // videos
             s.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS videos (" +
                             "videoId TEXT PRIMARY KEY," +
@@ -26,12 +24,21 @@ public final class DatabaseInitializer {
                             "platform TEXT NOT NULL," +
                             "startTime INTEGER," +
                             "type TEXT," +
-                            "timeAdded TEXT NOT NULL," +   // ISO-8601 string
-                            "userAdded INTEGER" +
+                            "timeAdded TEXT NOT NULL," +
+                            "userAdded INTEGER," +
+                            "playlistItemId TEXT" +
                             ")"
             );
 
+            s.executeUpdate(
+                    "ALTER TABLE videos ADD COLUMN playlistItemId TEXT"
+            );
+
         } catch (SQLException e) {
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("duplicate column name: playlistItemId")) {
+                return;
+            }
             throw new RuntimeException("Failed to initialize database", e);
         }
     }

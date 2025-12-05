@@ -10,8 +10,10 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.*;
 import com.google.api.services.youtube.YouTubeScopes;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemSnippet;
+import com.google.api.services.youtube.model.ResourceId;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.*;
@@ -19,8 +21,8 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class YouTubeService implements IYouTubeService{
-    private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148_igstb5h9vacbm5291dml39jeehkjsdqm_apps.json"; // положите в resources
+public class YouTubeService implements IYouTubeService {
+    private static final String CREDENTIALS_FILE_PATH = "/client_secret_192151238148-igstb5h9vacbm5291dml39jeehkjsdqm.apps.googleusercontent.com.json";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
@@ -28,45 +30,38 @@ public class YouTubeService implements IYouTubeService{
     private final String playlistId;
 
     public YouTubeService() throws GeneralSecurityException, IOException, IllegalStateException {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         Credential credential = authorize(httpTransport);
         this.youtube = new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
                 .setApplicationName("AppName")
                 .build();
-        final Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.load();
         this.playlistId = dotenv.get("YT_PLAYLIST_ID");
-        if (playlistId == null){
+        if (playlistId == null) {
             throw new IllegalStateException("YT_PLAYLIST_ID не указан");
         }
     }
 
-    private static Credential authorize(final NetHttpTransport httpTransport) throws IOException {
+    private static Credential authorize(NetHttpTransport httpTransport) throws IOException {
         InputStream in = YouTubeService.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Ресурс не найден " + CREDENTIALS_FILE_PATH);
         }
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
         List<String> scopes = Collections.singletonList(YouTubeScopes.YOUTUBE);
-        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH));
-
+        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH));
         com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow flow =
                 new com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow.Builder(
                         httpTransport, JSON_FACTORY, clientSecrets, scopes)
                         .setDataStoreFactory(dataStoreFactory)
                         .setAccessType("offline")
                         .build();
-
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    /**
-     * Добавляет видео в плейлист. Возвращает id созданного PlaylistItem.
-     */
     @Override
     public String addVideoToPlaylist(String videoId) throws IOException {
-
         ResourceId resourceId = new ResourceId();
         resourceId.setKind("youtube#video");
         resourceId.setVideoId(videoId);
@@ -78,9 +73,13 @@ public class YouTubeService implements IYouTubeService{
         PlaylistItem item = new PlaylistItem();
         item.setSnippet(snippet);
 
-        YouTube.PlaylistItems.Insert request = youtube.playlistItems()
-                .insert("snippet", item);
+        YouTube.PlaylistItems.Insert request = youtube.playlistItems().insert("snippet", item);
         PlaylistItem response = request.execute();
-        return response.getId(); // id playlistItem
+        return response.getId();
+    }
+
+    @Override
+    public void removeVideoFromPlaylist(String playlistItemId) throws IOException {
+        youtube.playlistItems().delete(playlistItemId).execute();
     }
 }
