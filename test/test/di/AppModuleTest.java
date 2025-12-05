@@ -56,12 +56,13 @@ class AppModuleTest {
         Injector injector = Guice.createInjector(new AppModule());
         List<MessageHandler> handlers = injector.getInstance(Key.get(new com.google.inject.TypeLiteral<List<MessageHandler>>() {}));
         assertNotNull(handlers);
-        assertEquals(6, handlers.size());
+        assertEquals(7, handlers.size());
         assertTrue(handlers.stream().anyMatch(h -> h instanceof NewUserHandler));
         assertTrue(handlers.stream().anyMatch(h -> h instanceof HelpHandler));
         assertTrue(handlers.stream().anyMatch(h -> h instanceof VideosHandler));
         assertTrue(handlers.stream().anyMatch(h -> h instanceof MyVideosHandler));
         assertTrue(handlers.stream().anyMatch(h -> h instanceof AddVideoHandler));
+        assertTrue(handlers.stream().anyMatch(h -> h instanceof DeleteVideoHandler));
         assertTrue(handlers.stream().anyMatch(h -> h instanceof UnknownCommandHandler));
     }
 }

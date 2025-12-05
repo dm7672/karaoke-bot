@@ -14,9 +14,8 @@ import java.util.stream.Collectors;
 public class AddVideoHandler implements MessageHandler {
     private final IRepository<Video, String> videoRepo;
     private final IUrlParser urlParser;
-    private final IYouTubeService youTubeService; // may be a Noop implementation
+    private final IYouTubeService youTubeService;
 
-    // app.Main constructor for Guice
     @Inject
     public AddVideoHandler(IRepository<Video, String> videoRepo,
                            IUrlParser urlParser,
@@ -26,7 +25,6 @@ public class AddVideoHandler implements MessageHandler {
         this.youTubeService = youTubeService;
     }
 
-    // Convenience constructor for tests (keeps backwards compatibility)
     public AddVideoHandler(IRepository<Video, String> videoRepo,
                            IUrlParser urlParser) {
         this(videoRepo, urlParser, null);
@@ -34,7 +32,6 @@ public class AddVideoHandler implements MessageHandler {
 
     @Override
     public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
-        // Any message not starting with "/" and only if user exists
         return text != null && !text.startsWith("/") && userRepo.existsById(userId);
     }
 
@@ -53,21 +50,22 @@ public class AddVideoHandler implements MessageHandler {
                 return List.of("Видео уже существует: " + video.getUrl());
             }
 
-            // Save locally
             videoRepo.save(video);
 
-            // If YouTubeService is provided — try to add to playlist
             if (youTubeService != null) {
                 try {
                     String playlistItemId = youTubeService.addVideoToPlaylist(video.getVideoId());
-                    return List.of("Видео добавлено: " + video.getUrl() +
-                            "\nДобавлено в плейлист (playlistItemId): " + playlistItemId);
+                    video.setPlaylistItemId(playlistItemId);
+                    videoRepo.update(video);
+                    return List.of(
+                            "Видео добавлено: " + video.getUrl()
+                    );
                 } catch (IOException e) {
                     e.printStackTrace();
                     return List.of("Не удалось добавить в YouTube-плейлист: " + video.getUrl() + " — " + e.getMessage());
                 }
             } else {
-                return List.of("Не удалось установить соединение с YouTube");
+                return List.of("Видео добавлено локально: " + video.getUrl() + "\nYouTube недоступен");
             }
         } catch (IllegalArgumentException ex) {
             return List.of(ex.getMessage());

@@ -139,4 +139,80 @@ class SQLiteVideoRepositoryTest {
         assertFalse(saved.isAfter(now.plusSeconds(1)), "timeAdded should not be in the future");
         assertFalse(saved.isBefore(now.minusMinutes(2)), "timeAdded should be recent (within 2 minutes)");
     }
+
+    @Test
+    void playlistItemId_persistedAndLoaded() {
+        Video v = new Video("https://youtu.be/pl", "YouTube", "pl", null, "watch");
+        v.setUserAdded(55L);
+        v.setPlaylistItemId("pl-xyz");
+        repo.save(v);
+
+        Video fromDb = repo.findById("pl");
+        assertNotNull(fromDb);
+        assertEquals("pl-xyz", fromDb.getPlaylistItemId());
+        assertEquals(Long.valueOf(55L), fromDb.getUserAdded());
+    }
+
+    @Test
+    void update_nonExisting_throwsRuntimeException() {
+        Video v = new Video("https://youtu.be/no", "YouTube", "no", null, "watch");
+        v.setUserAdded(1L);
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> repo.update(v));
+        String msg = ex.getMessage().toLowerCase();
+        assertTrue(msg.contains("0") || msg.contains("affected") || msg.contains("no rows"),
+                "Expected message indicating 0 rows affected, got: " + ex.getMessage());
+    }
+
+    @Test
+    void mapRow_handlesNullUserAddedAndNullPlaylistItem() {
+        Video v = new Video("https://youtu.be/nulls", "YouTube", "nulls", null, "short");
+        repo.save(v);
+
+        Video fromDb = repo.findById("nulls");
+        assertNotNull(fromDb);
+        assertNull(fromDb.getUserAdded(), "userAdded should be null when not set");
+        assertNull(fromDb.getPlaylistItemId(), "playlistItemId should be null when not set");
+    }
+
+    @Test
+    void timeAdded_customValue_persisted() {
+        LocalDateTime custom = LocalDateTime.of(2000, 1, 1, 0, 0);
+        Video v = new Video("https://youtu.be/custom", "YouTube", "custom", null, "watch", custom, 7L, "pl");
+        repo.save(v);
+
+        Video fromDb = repo.findById("custom");
+        assertNotNull(fromDb);
+        assertEquals(custom, fromDb.getTimeAdded(), "custom timeAdded should be preserved");
+    }
+
+    @Test
+    void findById_returnsNullForMissing() {
+        assertNull(repo.findById("no-such-id"), "findById should return null for missing id");
+        assertFalse(repo.existsById("no-such-id"), "existsById should be false for missing id");
+    }
+
+    @Test
+    void save_withPlaylistItemId_andNullUserAdded() {
+        Video v = new Video("https://youtu.be/plonly", "YouTube", "plonly", null, "watch");
+        v.setPlaylistItemId("only-pl");
+        repo.save(v);
+
+        Video fromDb = repo.findById("plonly");
+        assertNotNull(fromDb);
+        assertEquals("only-pl", fromDb.getPlaylistItemId());
+        assertNull(fromDb.getUserAdded());
+    }
+
+    @Test
+    void multipleDeletes_doNotThrowAndIdempotent() {
+        Video v = new Video("https://youtu.be/multi", "YouTube", "multi", null, "watch");
+        repo.save(v);
+        assertTrue(repo.existsById("multi"));
+
+        repo.delete("multi");
+        assertFalse(repo.existsById("multi"));
+
+        assertDoesNotThrow(() -> repo.delete("multi"));
+        assertFalse(repo.existsById("multi"));
+    }
 }
