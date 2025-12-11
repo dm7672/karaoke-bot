@@ -2,6 +2,7 @@ package test.view.ConsoleView;
 
 import org.junit.jupiter.api.*;
 import view.ConsoleView;
+import viewmodel.BotMessage;
 import viewmodel.ViewModel;
 
 import java.io.*;
@@ -29,10 +30,10 @@ class ConsoleViewTest {
         return outContent.toString().replace("\r\n", "\n");
     }
 
-    private ViewModel stubVmReturning(List<String> responses) {
+    private ViewModel stubVmReturning(List<BotMessage> responses) {
         return new ViewModel(null, List.of()) {
             @Override
-            public List<String> processMessage(Long userId, String msg) {
+            public List<BotMessage> processMessage(Long userId, String msg) {
                 return responses;
             }
         };
@@ -88,10 +89,13 @@ class ConsoleViewTest {
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
                 new ViewModel(null, List.of()) {
                     @Override
-                    public List<String> processMessage(Long userId, String msg) {
+                    public List<BotMessage> processMessage(Long userId, String msg) {
                         assertEquals(42L, userId);
                         assertEquals("hi", msg);
-                        return List.of("resp1", "resp2");
+                        return List.of(
+                                new BotMessage("resp1", null, null),
+                                new BotMessage("resp2", null, null)
+                        );
                     }
                 }
         );
@@ -108,7 +112,7 @@ class ConsoleViewTest {
         String input = "\n42 hello\nexit\n";
         ConsoleView view = new ConsoleView(
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
-                stubVmReturning(List.of("ok"))
+                stubVmReturning(List.of(new BotMessage("ok", null, null)))
         );
 
         view.start();
@@ -124,8 +128,8 @@ class ConsoleViewTest {
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
                 new ViewModel(null, List.of()) {
                     @Override
-                    public List<String> processMessage(Long userId, String msg) {
-                        return List.of("resp:" + userId + ":" + msg);
+                    public List<BotMessage> processMessage(Long userId, String msg) {
+                        return List.of(new BotMessage("resp:" + userId + ":" + msg, null, null));
                     }
                 }
         );
@@ -144,7 +148,7 @@ class ConsoleViewTest {
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
                 new ViewModel(null, List.of()) {
                     @Override
-                    public List<String> processMessage(Long userId, String msg) {
+                    public List<BotMessage> processMessage(Long userId, String msg) {
                         return List.of();
                     }
                 }
@@ -165,9 +169,9 @@ class ConsoleViewTest {
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
                 new ViewModel(null, List.of()) {
                     @Override
-                    public List<String> processMessage(Long userId, String msg) {
+                    public List<BotMessage> processMessage(Long userId, String msg) {
                         assertEquals(999999999L, userId);
-                        return List.of("big id ok");
+                        return List.of(new BotMessage("big id ok", null, null));
                     }
                 }
         );
@@ -183,7 +187,7 @@ class ConsoleViewTest {
         String input = "42\nexit\n";
         ConsoleView view = new ConsoleView(
                 new Scanner(new ByteArrayInputStream(input.getBytes())),
-                stubVmReturning(List.of("should not be called"))
+                stubVmReturning(List.of(new BotMessage("should not be called", null, null)))
         );
 
         view.start();

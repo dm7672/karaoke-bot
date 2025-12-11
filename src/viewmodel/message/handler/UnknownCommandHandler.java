@@ -3,6 +3,7 @@ package viewmodel.message.handler;
 import com.google.inject.Inject;
 import data.IRepository;
 import model.domain.entities.User;
+import viewmodel.BotMessage;
 
 import java.util.List;
 
@@ -16,10 +17,10 @@ public class UnknownCommandHandler implements MessageHandler {
     }
 
     @Override
-    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
+    public List<BotMessage> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         return List.of(
-                "Неизвестная команда: " + text,
-                "Для списка команд введите /help"
+                BotMessage.textOnly("Неизвестная команда: " + text),
+                BotMessage.textOnly("Для списка команд введите /help")
         );
     }
 }

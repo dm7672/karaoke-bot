@@ -1,6 +1,7 @@
 package view;
 
 import com.google.inject.Inject;
+import viewmodel.BotMessage;
 import viewmodel.ViewModel;
 
 import java.util.List;
@@ -11,18 +12,15 @@ public class ConsoleView implements View {
     private ViewModel viewModel;
     private final Scanner scanner;
 
-    // Default constructor kept for manual construction / tests
     public ConsoleView() {
         this.scanner = new Scanner(System.in);
     }
 
-    // Convenience constructor kept for tests or manual wiring
     public ConsoleView(Scanner scanner, ViewModel vm) {
         this.scanner = scanner;
         this.viewModel = vm;
     }
 
-    // Injected constructor for Guice usage
     @Inject
     public ConsoleView(ViewModel vm) {
         this.scanner = new Scanner(System.in);
@@ -56,10 +54,10 @@ public class ConsoleView implements View {
                 Long userId = Long.valueOf(parts[0]);
                 String message = parts[1];
 
-                List<String> responses = viewModel.processMessage(userId, message);
+                List<BotMessage> responses = viewModel.processMessage(userId, message);
 
-                for (String resp : responses) {
-                    System.out.println(resp);
+                for (BotMessage resp : responses) {
+                    System.out.println(resp.getText());
                 }
             } catch (NumberFormatException ex) {
                 System.out.println("userId должен быть числом.");

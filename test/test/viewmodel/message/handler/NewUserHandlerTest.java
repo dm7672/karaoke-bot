@@ -6,6 +6,7 @@ import data.IRepository;
 import model.domain.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import viewmodel.BotMessage;
 
 import java.util.List;
 
@@ -28,30 +29,31 @@ class NewUserHandlerTest {
 
     @Test
     void handle_startCommand_savesUserAndWelcomes() {
-        List<String> resp = handler.handle(7L, userRepo, "/start");
+        List<BotMessage> resp = handler.handle(7L, userRepo, "/start");
 
         assertTrue(userRepo.existsById(7L));
-        assertEquals(2, resp.size());
-        assertTrue(resp.get(0).contains("Добро пожаловать"));
+        assertEquals(1, resp.size());
+
+        String txt = resp.get(0).getText();
+        assertTrue(txt.contains("Добро пожаловать"));
+        assertTrue(txt.contains("/help"));
     }
 
     @Test
     void handle_otherMessage_savesUserAndHintsHelp() {
-        List<String> resp = handler.handle(8L, userRepo, "hello");
+        List<BotMessage> resp = handler.handle(8L, userRepo, "hello");
 
         assertTrue(userRepo.existsById(8L));
-        assertEquals(2, resp.size());
-        assertTrue(resp.get(1).contains("/help"));
+        assertEquals(1, resp.size());
+
+        String txt = resp.get(0).getText();
+        assertTrue(txt.contains("/help"));
     }
 
     @Test
     void canHandle_whenUserAlreadyExists_returnsFalse() {
-        // сначала создаём пользователя
         handler.handle(10L, userRepo, "/start");
-
-        // теперь canHandle должен вернуть false
-        assertFalse(handler.canHandle(10L, userRepo, "any"),
-                "Для уже существующего пользователя обработчик не должен срабатывать");
+        assertFalse(handler.canHandle(10L, userRepo, "any"));
     }
 
     @Test
@@ -62,31 +64,24 @@ class NewUserHandlerTest {
         handler.handle(11L, userRepo, "/start");
         int countAfterSecond = userRepo.findAll().size();
 
-        assertEquals(countAfterFirst, countAfterSecond,
-                "Повторный вызов /start не должен создавать дубликатов пользователей");
+        assertEquals(countAfterFirst, countAfterSecond);
     }
 
     @Test
     void handle_withEmptyMessage_savesUserAndHintsHelp() {
-        List<String> resp = handler.handle(13L, userRepo, "");
+        List<BotMessage> resp = handler.handle(13L, userRepo, "");
 
-        assertTrue(userRepo.existsById(13L),
-                "Даже при пустом сообщении пользователь должен быть сохранён");
-        assertEquals(2, resp.size(),
-                "Ответ должен состоять из двух строк");
-        assertTrue(resp.get(1).contains("/help"),
-                "Вторая строка должна содержать подсказку про /help");
+        assertTrue(userRepo.existsById(13L));
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("/help"));
     }
 
     @Test
     void handle_withWhitespaceMessage_savesUserAndHintsHelp() {
-        List<String> resp = handler.handle(14L, userRepo, "   ");
+        List<BotMessage> resp = handler.handle(14L, userRepo, "   ");
 
-        assertTrue(userRepo.existsById(14L),
-                "Даже при сообщении из пробелов пользователь должен быть сохранён");
-        assertEquals(2, resp.size(),
-                "Ответ должен состоять из двух строк");
-        assertTrue(resp.get(1).contains("/help"),
-                "Вторая строка должна содержать подсказку про /help");
+        assertTrue(userRepo.existsById(14L));
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("/help"));
     }
 }

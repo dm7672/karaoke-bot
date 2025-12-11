@@ -1,12 +1,13 @@
 package test.viewmodel.message.handler;
 
-import model.domain.entities.User;
-import viewmodel.message.handler.*;
 import data.InMemoryRepository;
 import data.IRepository;
+import model.domain.entities.User;
 import model.domain.entities.Video;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import viewmodel.BotMessage;
+import viewmodel.message.handler.VideosHandler;
 
 import java.util.List;
 
@@ -36,9 +37,9 @@ class VideosHandlerTest {
 
     @Test
     void handle_noVideos_returnsEmptyNotice() {
-        List<String> resp = handler.handle(42L, userRepo, "/Videos");
+        List<BotMessage> resp = handler.handle(42L, userRepo, "/Videos");
         assertEquals(1, resp.size());
-        assertEquals("Ещё нет добавленных видео.", resp.get(0));
+        assertEquals("Ещё нет добавленных видео.", resp.get(0).getText());
     }
 
     @Test
@@ -50,9 +51,9 @@ class VideosHandlerTest {
         videoRepo.save(v1);
         videoRepo.save(v2);
 
-        List<String> resp = handler.handle(5L, userRepo, "/Videos");
+        List<BotMessage> resp = handler.handle(5L, userRepo, "/Videos");
         assertEquals(2, resp.size());
-        assertTrue(resp.contains("u1"));
+        assertTrue(resp.stream().anyMatch(m -> m.getText().contains("u1")));
     }
 
     @Test
@@ -64,10 +65,9 @@ class VideosHandlerTest {
         videoRepo.save(v1);
         videoRepo.save(v2);
 
-        List<String> resp = handler.handle(42L, userRepo, "/Videos");
-        assertEquals(2, resp.size(),
-                "Оба видео одного пользователя должны быть выведены");
-        assertTrue(resp.stream().anyMatch(s -> s.contains("u1")));
-        assertTrue(resp.stream().anyMatch(s -> s.contains("u2")));
+        List<BotMessage> resp = handler.handle(42L, userRepo, "/Videos");
+        assertEquals(2, resp.size());
+        assertTrue(resp.stream().anyMatch(m -> m.getText().contains("u1")));
+        assertTrue(resp.stream().anyMatch(m -> m.getText().contains("u2")));
     }
 }

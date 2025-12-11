@@ -6,6 +6,7 @@ import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
 import services.youtube.IYouTubeService;
+import viewmodel.BotMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,19 +29,32 @@ public class DeleteVideoHandler implements MessageHandler {
 
     @Override
     public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
-        return text != null
-                && text.startsWith("/Delete")
-                && userRepo.existsById(userId);
+        if (text == null || !userRepo.existsById(userId)) {
+            return false;
+        }
+        String t = text.trim();
+        return t.startsWith("/Delete") || t.startsWith("delete:") || urlParser.isValid(t);
     }
 
     @Override
-    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
-        String[] parts = text.trim().split("\\s+", 2);
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            return List.of("Использование: /Delete <videoId или URL>");
+    public List<BotMessage> handle(Long userId, IRepository<User, Long> userRepo, String text) {
+        String trimmed = text.trim();
+        String arg;
+
+        if (urlParser.isValid(trimmed)) {
+            arg = trimmed;
+        }
+        else if (trimmed.startsWith("delete:")) {
+            arg = trimmed.substring("delete:".length());
+        }
+        else {
+            String[] parts = trimmed.split("\\s+", 2);
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                return List.of(BotMessage.textOnly("Использование: /Delete <videoId или URL>"));
+            }
+            arg = parts[1].trim();
         }
 
-        String arg = parts[1].trim();
         Video targetVideo = null;
 
         if (urlParser.isValid(arg)) {
@@ -56,26 +70,26 @@ public class DeleteVideoHandler implements MessageHandler {
         }
 
         if (targetVideo == null) {
-            return List.of("Видео не найдено: " + arg);
+            return List.of(BotMessage.textOnly("Видео не найдено: " + arg));
         }
 
         if (!userId.equals(targetVideo.getUserAdded())) {
-            return List.of("Вы не можете удалить чужое видео");
+            return List.of(BotMessage.textOnly("Вы не можете удалить чужое видео"));
         }
 
-        List<String> messages = new ArrayList<>();
+        List<BotMessage> messages = new ArrayList<>();
 
         if (youTubeService != null && targetVideo.getPlaylistItemId() != null) {
             try {
                 youTubeService.removeVideoFromPlaylist(targetVideo.getPlaylistItemId());
             } catch (IOException e) {
                 e.printStackTrace();
-                messages.add("Не удалось удалить из YouTube-плейлиста: " + e.getMessage());
+                messages.add(BotMessage.textOnly("Не удалось удалить из YouTube-плейлиста: " + e.getMessage()));
             }
         }
 
         videoRepo.delete(targetVideo.getVideoId());
-        messages.add("Видео удалено: " + targetVideo.getUrl());
+        messages.add(BotMessage.textOnly("Видео удалено: " + targetVideo.getUrl()));
 
         return messages;
     }

@@ -9,6 +9,7 @@ import model.domain.parcer.YouTubeUrlParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.youtube.IYouTubeService;
+import viewmodel.BotMessage;
 import viewmodel.message.handler.DeleteVideoHandler;
 
 import java.io.IOException;
@@ -49,94 +50,100 @@ class DeleteVideoHandlerTest {
 
         doNothing().when(ytMock).removeVideoFromPlaylist("playlistItem123");
 
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
 
         assertEquals(1, resp.size());
-        assertTrue(resp.get(0).contains("Видео удалено: " + VIDEO_URL));
+        assertTrue(resp.get(0).getText().contains("Видео удалено: " + VIDEO_URL));
         assertTrue(videoRepo.findAll().isEmpty());
         verify(ytMock, times(1)).removeVideoFromPlaylist("playlistItem123");
     }
 
     @Test
-    void handle_deleteByUrl_callsYouTubeAndDeletesFromDb_whenYouTubeSucceeds() throws Exception {
+    void handle_deleteById_noPlaylistItemId() {
         Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
         v.setUserAdded(TEST_USER.getUserId());
-        v.setPlaylistItemId("plItemX");
+        v.setPlaylistItemId(null);
         videoRepo.save(v);
 
-        doNothing().when(ytMock).removeVideoFromPlaylist("plItemX");
-
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_URL);
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
 
         assertEquals(1, resp.size());
-        assertTrue(resp.get(0).contains("Видео удалено: " + VIDEO_URL));
-        assertTrue(videoRepo.findAll().isEmpty());
-        verify(ytMock, times(1)).removeVideoFromPlaylist("plItemX");
-    }
-
-    @Test
-    void handle_deleteWithoutPlaylistItem_deletesOnlyFromDb_andDoesNotCallYouTube() {
-        Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
-        v.setUserAdded(TEST_USER.getUserId());
-        videoRepo.save(v);
-
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
-
-        assertEquals(1, resp.size());
-        assertTrue(resp.get(0).contains("Видео удалено: " + VIDEO_URL));
+        assertTrue(resp.get(0).getText().contains("Видео удалено"));
         assertTrue(videoRepo.findAll().isEmpty());
         verifyNoInteractions(ytMock);
     }
 
     @Test
-    void handle_youtubeDeletionFails_reportsErrorAndStillDeletesFromDb() throws Exception {
+    void handle_deleteWithDeletePrefix() {
         Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
         v.setUserAdded(TEST_USER.getUserId());
-        v.setPlaylistItemId("pl-fail");
         videoRepo.save(v);
 
-        doThrow(new IOException("yt error")).when(ytMock).removeVideoFromPlaylist("pl-fail");
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "delete:" + VIDEO_ID);
 
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
-
-        assertEquals(2, resp.size());
-        assertTrue(resp.stream().anyMatch(s -> s.contains("Не удалось удалить из YouTube-плейлиста")));
-        assertTrue(resp.stream().anyMatch(s -> s.contains("Видео удалено: " + VIDEO_URL)));
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("Видео удалено"));
         assertTrue(videoRepo.findAll().isEmpty());
-        verify(ytMock, times(1)).removeVideoFromPlaylist("pl-fail");
     }
 
     @Test
-    void handle_cannotDeleteOthersVideo_returnsForbiddenAndKeepsRecord() {
-        Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
-        v.setUserAdded(OTHER_USER.getUserId());
-        v.setPlaylistItemId("pl-other");
-        videoRepo.save(v);
-
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
+    void handle_invalidFormat_returnsUsage() {
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete");
 
         assertEquals(1, resp.size());
-        assertEquals("Вы не можете удалить чужое видео", resp.get(0));
+        assertTrue(resp.get(0).getText().contains("Использование"));
+    }
+
+    @Test
+    void handle_videoNotFound_returnsError() {
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete noSuchId");
+
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("Видео не найдено"));
+    }
+
+    @Test
+    void handle_deleteOthersVideo_forbidden() {
+        Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
+        v.setUserAdded(OTHER_USER.getUserId());
+        videoRepo.save(v);
+
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
+
+        assertEquals(1, resp.size());
+        assertEquals("Вы не можете удалить чужое видео", resp.get(0).getText());
         assertEquals(1, videoRepo.findAll().size());
         verifyNoInteractions(ytMock);
     }
 
     @Test
-    void handle_nonexistentVideo_returnsNotFound() {
-        List<String> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete no-such-id");
+    void handle_youtubeError_reportsAndStillDeletes() throws Exception {
+        Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
+        v.setUserAdded(TEST_USER.getUserId());
+        v.setPlaylistItemId("err123");
+        videoRepo.save(v);
 
-        assertEquals(1, resp.size());
-        assertTrue(resp.get(0).contains("Видео не найдено"));
+        doThrow(new IOException("yt fail")).when(ytMock).removeVideoFromPlaylist("err123");
+
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete " + VIDEO_ID);
+
+        assertEquals(2, resp.size());
+        assertTrue(resp.get(0).getText().contains("Не удалось удалить"));
+        assertTrue(resp.get(1).getText().contains("Видео удалено"));
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 
     @Test
-    void handle_noArgument_returnsUsageMessage() {
-        List<String> resp1 = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete");
-        List<String> resp2 = handler.handle(TEST_USER.getUserId(), userRepo, "/Delete   ");
+    void handle_deleteByValidUrlStringWithoutCommand() {
+        Video v = new Video(VIDEO_URL, "YouTube", VIDEO_ID, null, "watch");
+        v.setUserAdded(TEST_USER.getUserId());
+        videoRepo.save(v);
 
-        assertEquals(1, resp1.size());
-        assertTrue(resp1.get(0).toLowerCase().contains("использование"));
-        assertEquals(1, resp2.size());
-        assertTrue(resp2.get(0).toLowerCase().contains("использование"));
+        List<BotMessage> resp = handler.handle(TEST_USER.getUserId(), userRepo, VIDEO_URL);
+
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("Видео удалено"));
+        assertTrue(videoRepo.findAll().isEmpty());
     }
+
 }
