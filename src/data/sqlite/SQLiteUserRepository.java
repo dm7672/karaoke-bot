@@ -1,5 +1,6 @@
 package data.sqlite;
 
+import data.MemoryUserCache;
 import model.domain.entities.User;
 
 import java.sql.Connection;
@@ -23,7 +24,8 @@ public class SQLiteUserRepository extends SQLiteRepository<User, Long> {
     protected User mapRow(ResultSet rs) throws SQLException {
         Long userId = rs.getLong("userId");
         String platform = rs.getString("platform");
-        return new User(userId, platform);
+
+        return MemoryUserCache.getOrCreate(userId, platform);
     }
 
     @Override
@@ -39,6 +41,9 @@ public class SQLiteUserRepository extends SQLiteRepository<User, Long> {
         PreparedStatement ps = c.prepareStatement("UPDATE users SET platform = ? WHERE userId = ?");
         ps.setString(1, entity.getPlatform());
         ps.setLong(2, entity.getUserId());
+
+        MemoryUserCache.put(entity);
+
         return ps;
     }
 

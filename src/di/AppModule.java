@@ -37,6 +37,8 @@ public class AppModule extends AbstractModule {
         bind(MyVideosHandler.class).in(Singleton.class);
         bind(AddVideoHandler.class).in(Singleton.class);
         bind(DeleteVideoHandler.class).in(Singleton.class);
+        bind(ActionSelectHandler.class).in(Singleton.class);
+        bind(PendingActionHandler.class).in(Singleton.class);
         bind(UnknownCommandHandler.class).in(Singleton.class);
     }
 
@@ -60,11 +62,15 @@ public class AppModule extends AbstractModule {
             MyVideosHandler myVideos,
             AddVideoHandler addVideo,
             DeleteVideoHandler deleteVideo,
+            ActionSelectHandler actionSelect,
+            PendingActionHandler pending,
             UnknownCommandHandler unknown
     ) {
         return List.of(
                 newUser,
                 help,
+                actionSelect,
+                pending,
                 videos,
                 myVideos,
                 addVideo,

@@ -6,14 +6,10 @@ import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.YouTubeUrlParser;
 import services.youtube.IYouTubeService;
+import viewmodel.BotMessage;
 import viewmodel.ViewModel;
-import viewmodel.message.handler.AddVideoHandler;
-import viewmodel.message.handler.HelpHandler;
-import viewmodel.message.handler.MessageHandler;
-import viewmodel.message.handler.MyVideosHandler;
-import viewmodel.message.handler.NewUserHandler;
-import viewmodel.message.handler.UnknownCommandHandler;
-import viewmodel.message.handler.VideosHandler;
+import viewmodel.message.handler.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,21 +18,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ViewModelTest {
     private static final Long TEST_USER = 42L;
-    private static final String  GOOD_URL  = "https://www.youtube.com/watch?v=UQyei4cdGFY";
-    private static final String  BAD_URL   = "bad";
+    private static final String GOOD_URL = "https://www.youtube.com/watch?v=UQyei4cdGFY";
+    private static final String BAD_URL = "bad";
 
-    private IRepository<User, Long>     userRepo;
-    private IRepository<Video, String>  videoRepo;
-    private ViewModel                   vm;
+    private IRepository<User, Long> userRepo;
+    private IRepository<Video, String> videoRepo;
+    private ViewModel vm;
 
     @BeforeEach
     void setUp() throws IOException {
-        userRepo  = new InMemoryRepository<>(User::getUserId);
+        userRepo = new InMemoryRepository<>(User::getUserId);
         videoRepo = new InMemoryRepository<>(Video::getVideoId);
 
         IYouTubeService ytMock = mock(IYouTubeService.class);
@@ -56,88 +51,69 @@ class ViewModelTest {
 
     @Test
     void newUserStart_registersUserAndReturnsWelcome() {
-        List<String> resp = vm.processMessage(TEST_USER, "/start");
+        List<BotMessage> resp = vm.processMessage(TEST_USER, "/start");
 
-        assertTrue(userRepo.existsById(TEST_USER),
-                "Пользователь должен быть сохранён после /start");
-        assertEquals(2, resp.size(),
-                "Приветствие должно содержать две строки");
-        assertTrue(resp.get(0).contains("Добро пожаловать"),
-                "В первой строке должно быть приветствие пользователя");
-        assertTrue(resp.get(1).contains("/help"),
-                "Вторая строка должна подсказать функционал бота /help");
+        assertTrue(userRepo.existsById(TEST_USER));
+        assertEquals(1, resp.size());
+
+        String txt = resp.get(0).getText();
+        assertTrue(txt.contains("Добро пожаловать"));
+        assertTrue(txt.contains("/help"));
     }
 
     @Test
     void helpCommand_afterRegistration_returnsHelpText() {
         vm.processMessage(TEST_USER, "/start");
-        List<String> resp = vm.processMessage(TEST_USER, "/help");
+        List<BotMessage> resp = vm.processMessage(TEST_USER, "/help");
 
-        assertFalse(resp.isEmpty(), "Текст помощи не должен быть пустым");
-        assertTrue(resp.get(0).startsWith("Как работать с ботом:"),
-                "Первая строка помощи должна объяснять использование бота");
+        assertFalse(resp.isEmpty());
+        assertTrue(resp.get(0).getText().startsWith("Как работать с ботом"));
     }
 
     @Test
     void addAndDuplicateVideo_behavesCorrectly() {
         vm.processMessage(TEST_USER, "/start");
 
-        // первое добавление
-        List<String> first = vm.processMessage(TEST_USER, GOOD_URL);
+        List<BotMessage> first = vm.processMessage(TEST_USER, GOOD_URL);
         assertEquals(1, first.size());
-        assertTrue(first.get(0).contains("Видео добавлено: " + GOOD_URL));
-        assertEquals(1, videoRepo.findAll().size(),
-                "Должно быть сохранено одно видео");
+        assertTrue(first.get(0).getText().contains("Видео добавлено"));
 
-        // повторное добавление
-        List<String> second = vm.processMessage(TEST_USER, GOOD_URL);
+        assertEquals(1, videoRepo.findAll().size());
+
+        List<BotMessage> second = vm.processMessage(TEST_USER, GOOD_URL);
         assertEquals(1, second.size());
-        assertTrue(second.get(0).startsWith("Видео уже существует"),
-                "Повторное добавление должно быть обнаружено");
-        assertEquals(1, videoRepo.findAll().size(),
-                "В репозитории всё ещё должно быть только одно видео");
+        assertTrue(second.get(0).getText().startsWith("Видео уже существует"));
+        assertEquals(1, videoRepo.findAll().size());
     }
 
     @Test
     void unknownCommand_afterRegistration_returnsUnknown() {
         vm.processMessage(TEST_USER, "/start");
-        List<String> resp = vm.processMessage(TEST_USER, "/foobar");
+        List<BotMessage> resp = vm.processMessage(TEST_USER, "/foobar");
 
-        assertEquals(2, resp.size(),
-                "Неизвестная команда должна вернуть две подсказки");
-        assertTrue(resp.get(0).contains("Неизвестная команд"),
-                "Должно уведомить о неизвестной команде");
-        assertTrue(resp.get(1).contains("/help"),
-                "Должно предложить /help");
+        assertEquals(2, resp.size());
+        assertTrue(resp.get(0).getText().contains("Неизвестная команд"));
+        assertTrue(resp.get(1).getText().contains("/help"));
     }
 
     @Test
     void badUrl_afterRegistration_returnsParserError() {
         vm.processMessage(TEST_USER, "/start");
-        List<String> resp = vm.processMessage(TEST_USER, BAD_URL);
+        List<BotMessage> resp = vm.processMessage(TEST_USER, BAD_URL);
 
-        assertEquals(1, resp.size(),
-                "Ошибка парсера должна вернуть одно сообщение");
-        assertEquals("Ссылка не принадлежит Ютубу: " + BAD_URL,
-                resp.get(0),
-                "Текст ошибки должен приходить из YouTubeUrlParser");
-        assertTrue(videoRepo.findAll().isEmpty(),
-                "Для некорректной ссылки видео не должно сохраняться");
+        assertEquals(1, resp.size());
+        assertEquals("Ссылка не принадлежит Ютубу: " + BAD_URL, resp.get(0).getText());
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 
     @Test
     void startCommand_twice_doesNotDuplicateUser() {
-        // первый вызов /start
         vm.processMessage(TEST_USER, "/start");
-        assertEquals(1, userRepo.findAll().size(),
-                "После первого /start должен быть один пользователь");
+        assertEquals(1, userRepo.findAll().size());
 
-        // повторный вызов /start
-        List<String> resp = vm.processMessage(TEST_USER, "/start");
-        assertEquals(2, resp.size(),
-                "Повторный /start должен вернуть приветствие из двух строк");
-        assertEquals(1, userRepo.findAll().size(),
-                "Количество пользователей не должно увеличиться при повторном /start");
+        List<BotMessage> resp = vm.processMessage(TEST_USER, "/start");
+        assertEquals(2, resp.size());
+        assertEquals(1, userRepo.findAll().size());
     }
 
     @Test
@@ -148,25 +124,21 @@ class ViewModelTest {
         vm.processMessage(userA, "/start");
         vm.processMessage(userB, "/start");
 
-        assertTrue(userRepo.existsById(userA), "Пользователь A должен быть зарегистрирован");
-        assertTrue(userRepo.existsById(userB), "Пользователь B должен быть зарегистрирован");
-        assertEquals(2, userRepo.findAll().size(),
-                "Оба пользователя должны храниться независимо");
+        assertTrue(userRepo.existsById(userA));
+        assertTrue(userRepo.existsById(userB));
+        assertEquals(2, userRepo.findAll().size());
 
-        // добавляем видео от пользователя A
         vm.processMessage(userA, GOOD_URL);
-        assertEquals(1, videoRepo.findAll().size(),
-                "Видео должно быть добавлено в общий репозиторий");
+        assertEquals(1, videoRepo.findAll().size());
 
-        // пользователь B добавляет то же видео
-        List<String> resp = vm.processMessage(userB, GOOD_URL);
-        assertTrue(resp.get(0).startsWith("Видео уже существует"),
-                "Для второго пользователя тоже должно сработать обнаружение дубликата");
+        List<BotMessage> resp = vm.processMessage(userB, GOOD_URL);
+        assertTrue(resp.get(0).getText().startsWith("Видео уже существует"));
     }
 
     @Test
     void multipleDifferentVideos_areAllStored() {
         vm.processMessage(TEST_USER, "/start");
+
         String url2 = "https://www.youtube.com/watch?v=abcd1234";
         String url3 = "https://www.youtube.com/watch?v=efgh5678";
 
@@ -174,21 +146,18 @@ class ViewModelTest {
         vm.processMessage(TEST_USER, url2);
         vm.processMessage(TEST_USER, url3);
 
-        assertEquals(3, videoRepo.findAll().size(),
-                "Все три разных видео должны быть сохранены");
+        assertEquals(3, videoRepo.findAll().size());
     }
 
     @Test
     void longInvalidUrl_returnsParserError() {
         vm.processMessage(TEST_USER, "/start");
         String longInvalid = "http://example.com/" + "a".repeat(300);
-        List<String> resp = vm.processMessage(TEST_USER, longInvalid);
 
-        assertEquals(1, resp.size(),
-                "Длинная некорректная ссылка должна вернуть одно сообщение");
-        assertTrue(resp.get(0).contains("Ссылка не принадлежит Ютубу"),
-                "Сообщение должно явно указывать на неправильный источник");
-        assertTrue(videoRepo.findAll().isEmpty(),
-                "Видео не должно быть сохранено для некорректной ссылки");
+        List<BotMessage> resp = vm.processMessage(TEST_USER, longInvalid);
+
+        assertEquals(1, resp.size());
+        assertTrue(resp.get(0).getText().contains("Ссылка не принадлежит Ютубу"));
+        assertTrue(videoRepo.findAll().isEmpty());
     }
 }

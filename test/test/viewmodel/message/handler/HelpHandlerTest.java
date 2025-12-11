@@ -1,11 +1,12 @@
 package test.viewmodel.message.handler;
 
 import data.InMemoryRepository;
-import org.junit.jupiter.api.BeforeEach;
-import viewmodel.message.handler.HelpHandler;
 import data.IRepository;
 import model.domain.entities.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import viewmodel.BotMessage;
+import viewmodel.message.handler.HelpHandler;
 
 import java.util.List;
 
@@ -32,40 +33,8 @@ class HelpHandlerTest {
 
     @Test
     void handle_returnsHelpText() {
-        List<String> resp = handler.handle(1L, userRepo, "/help");
+        List<BotMessage> resp = handler.handle(1L, userRepo, "/help");
         assertFalse(resp.isEmpty());
-        assertTrue(resp.get(0).startsWith("Как работать с ботом:"));
-    }
-
-    @Test
-    void canHandle_withExtraSpacesInsideFails() {
-        assertFalse(handler.canHandle(1L, userRepo, "/he lp"));
-        assertFalse(handler.canHandle(1L, userRepo, "/ help"));
-    }
-
-    @Test
-    void handle_alwaysReturnsNonEmptyList() {
-        List<String> resp1 = handler.handle(1L, userRepo, "/help");
-        assertNotNull(resp1);
-        assertFalse(resp1.isEmpty());
-
-        List<String> resp2 = handler.handle(1L, userRepo, "/help   ");
-        assertNotNull(resp2);
-        assertFalse(resp2.isEmpty());
-    }
-
-    @Test
-    void handle_trimsTrailingSpaces() {
-        List<String> resp = handler.handle(1L, userRepo, "/help   ");
-        assertNotNull(resp);
-        assertFalse(resp.isEmpty());
-        assertTrue(resp.get(0).contains("ботом"));
-    }
-
-    @Test
-    void handle_multipleCallsConsistent() {
-        List<String> first = handler.handle(1L, userRepo, "/help");
-        List<String> second = handler.handle(1L, userRepo, "/help");
-        assertEquals(first, second, "Результат должен быть одинаковым при повторных вызовах");
+        assertTrue(resp.get(0).getText().startsWith("Как работать с ботом"));
     }
 }

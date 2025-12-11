@@ -18,12 +18,12 @@ public class ViewModel {
         this.handlers = handlers;
     }
 
-    public List<String> processMessage(Long userId, String text) {
+    public List<BotMessage> processMessage(Long userId, String text) {
         for (MessageHandler h : handlers) {
             if (h.canHandle(userId, userRepo, text)) {
                 return h.handle(userId, userRepo, text);
             }
         }
-        return List.of();
+        return List.of(BotMessage.textOnly("Команда не обработана"));
     }
 }

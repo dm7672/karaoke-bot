@@ -6,6 +6,7 @@ import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
 import services.youtube.IYouTubeService;
+import viewmodel.BotMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,11 +33,21 @@ public class AddVideoHandler implements MessageHandler {
 
     @Override
     public boolean canHandle(Long userId, IRepository<User, Long> userRepo, String text) {
-        return text != null && !text.startsWith("/") && userRepo.existsById(userId);
+        if (text == null || !userRepo.existsById(userId)) {
+            return false;
+        }
+        String t = text.trim();
+        if (t.startsWith("/")) {
+            return false;
+        }
+        if (t.startsWith("delete:") || t.equals("send_url")) {
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public List<String> handle(Long userId, IRepository<User, Long> userRepo, String text) {
+    public List<BotMessage> handle(Long userId, IRepository<User, Long> userRepo, String text) {
         try {
             Video video = urlParser.parse(text);
             video.setUserAdded(userId);
@@ -47,7 +58,7 @@ public class AddVideoHandler implements MessageHandler {
                     .contains(video.getUrl());
 
             if (exists) {
-                return List.of("Видео уже существует: " + video.getUrl());
+                return List.of(BotMessage.textOnly("Видео уже существует: " + video.getUrl()));
             }
 
             videoRepo.save(video);
@@ -58,17 +69,17 @@ public class AddVideoHandler implements MessageHandler {
                     video.setPlaylistItemId(playlistItemId);
                     videoRepo.update(video);
                     return List.of(
-                            "Видео добавлено: " + video.getUrl()
+                            BotMessage.textOnly("Видео добавлено: " + video.getUrl())
                     );
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return List.of("Не удалось добавить в YouTube-плейлист: " + video.getUrl() + " — " + e.getMessage());
+                    return List.of(BotMessage.textOnly("Не удалось добавить в YouTube-плейлист: " + video.getUrl() + " — " + e.getMessage()));
                 }
             } else {
-                return List.of("Видео добавлено локально: " + video.getUrl() + "\nYouTube недоступен");
+                return List.of(BotMessage.textOnly("Видео добавлено локально: " + video.getUrl() + "\nYouTube недоступен"));
             }
         } catch (IllegalArgumentException ex) {
-            return List.of(ex.getMessage());
+            return List.of(BotMessage.textOnly(ex.getMessage()));
         }
     }
 }
