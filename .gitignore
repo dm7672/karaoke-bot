@@ -79,3 +79,4 @@ src/resources/
 # === Coverage and local DB ===
 karaoke.db
 coverage-report/
+/token/StoredCredential
