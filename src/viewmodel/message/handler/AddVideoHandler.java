@@ -2,6 +2,7 @@ package viewmodel.message.handler;
 
 import com.google.inject.Inject;
 import data.IRepository;
+import io.github.cdimascio.dotenv.Dotenv;
 import model.domain.entities.User;
 import model.domain.entities.Video;
 import model.domain.parcer.IUrlParser;
@@ -58,7 +59,7 @@ public class AddVideoHandler implements MessageHandler {
                     .contains(video.getUrl());
 
             if (exists) {
-                return List.of(BotMessage.textOnly("Видео уже существует: " + video.getUrl()));
+                return List.of(BotMessage.textOnly("Видео уже существует: " + video.getUrl() + "\nВ плейлисте: " + "https://www.youtube.com/playlist?list="+ Dotenv.load().get("YT_PLAYLIST_ID")));
             }
 
             videoRepo.save(video);
@@ -69,7 +70,7 @@ public class AddVideoHandler implements MessageHandler {
                     video.setPlaylistItemId(playlistItemId);
                     videoRepo.update(video);
                     return List.of(
-                            BotMessage.textOnly("Видео добавлено: " + video.getUrl())
+                            BotMessage.textOnly("Видео добавлено: " + video.getUrl() + "\nВ плейлист: " + "https://www.youtube.com/playlist?list="+ Dotenv.load().get("YT_PLAYLIST_ID"))
                     );
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -69,7 +69,7 @@ public class TelegramView extends TelegramLongPollingBot implements View {
                 reply.setReplyMarkup(toTelegramInlineKeyboard(resp.getInlineKeyboard()));
             } else {
                 ReplyKeyboard rk = resp.getReplyKeyboard() != null ? resp.getReplyKeyboard() : defaultReplyKeyboard();
-                reply.setReplyMarkup(toTelegramReplyKeyboard(rk));
+                reply.setReplyMarkup(toTelegramReplyKeyboard(defaultReplyKeyboard()));
             }
 
             try {

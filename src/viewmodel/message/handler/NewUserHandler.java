@@ -37,7 +37,7 @@ public class NewUserHandler implements MessageHandler {
             BotMessage msg = new BotMessage(
                     String.join("\n",
                             "Добро пожаловать! Я бот для добавления YouTube-видео.",
-                            "Чтобы узнать доступные команды, введите /help"
+                            "Чтобы узнать доступные команды, введите /help или нажмите на кнопку команды"
                     ),
                     null,
                     keyboard
@@ -47,8 +47,8 @@ public class NewUserHandler implements MessageHandler {
 
         BotMessage msg = new BotMessage(
                 String.join("\n",
-                        "Привет! Ты зарегистрирован как пользователь",
-                        "Для списка команд введи /help"
+                        "Добро пожаловать! Я бот для добавления YouTube-видео.",
+                        "Чтобы узнать доступные команды, введите /help или нажмите на кнопку команды"
                 ),
                 null,
                 keyboard
